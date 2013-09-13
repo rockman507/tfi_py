@@ -2,72 +2,73 @@ Timer unit: 4.1058e-07 s
 
 File: wrapped_phase.py
 Function: get_phase at line 68
-Total time: 11.9626 s
+Total time: 11.8186 s
 
 Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
     68                                           @profile
     69                                           def get_phase(filename, path, path_raw, path_images, mask, coord, deb):
-    70        30          330     11.0      0.0      z = time.clock()
+    70        30          361     12.0      0.0      z = time.clock()
     71                                           
-    72        30         2119     70.6      0.0      file_in = os.path.join(path,filename)
-    73        30         1263     42.1      0.0      file_raw = os.path.join(path_raw,'raw_'+filename)
-    74        30         1274     42.5      0.0      image_phase = os.path.join(path_images,'wrapped'+filename[4:11]+'bmp')
-    75        30         1210     40.3      0.0      binary_phase = os.path.join(path_raw,'wrapped'+filename[4:11]+'dat')
-    76        30         1199     40.0      0.0      mod_arr = os.path.join(path_raw,'mod'+filename[4:11]+'dat')
-    77        30         1201     40.0      0.0      mod_image = os.path.join(path_images,'mod'+filename[4:11]+'bmp')
-    78        30         1250     41.7      0.0      qual_arr = os.path.join(path_raw,'qual'+filename[4:11]+'dat')
-    79        30         1209     40.3      0.0      qual_image = os.path.join(path_images,'qual'+filename[4:11]+'bmp')
+    72        30         2277     75.9      0.0      file_in = os.path.join(path,filename)
+    73        30         1470     49.0      0.0      file_raw = os.path.join(path_raw,'raw_'+filename)
+    74        30         1439     48.0      0.0      image_phase = os.path.join(path_images,'wrapped'+filename[4:11]+'bmp')
+    75        30         1342     44.7      0.0      binary_phase = os.path.join(path_raw,'wrapped'+filename[4:11]+'dat')
+    76        30         1359     45.3      0.0      mod_arr = os.path.join(path_raw,'mod'+filename[4:11]+'dat')
+    77        30         1387     46.2      0.0      mod_image = os.path.join(path_images,'mod'+filename[4:11]+'bmp')
+    78        30         1444     48.1      0.0      qual_arr = os.path.join(path_raw,'qual'+filename[4:11]+'dat')
+    79        30         1372     45.7      0.0      qual_image = os.path.join(path_images,'qual'+filename[4:11]+'bmp')
     80                                           
     81                                               # Open meas file and grab dataset
-    82        30          177      5.9      0.0      try:
-    83        30        29960    998.7      0.1          f = File(file_in, 'r')
+    82        30          196      6.5      0.0      try:
+    83        30        33573   1119.1      0.1          f = File(file_in, 'r')
     84                                               except:
     85                                                   print 'Corrupt h5 file: '+filename+' ignoring'
     86                                                   return
-    87        30        23821    794.0      0.1      sub = f.get(r'measurement0/frames/frame_full/data')
-    88        30       322820  10760.7      1.1      data = np.array(sub,'f')
-    89        30        21509    717.0      0.1      f.close()
+    87        30        26528    884.3      0.1      sub = f.get(r'measurement0/frames/frame_full/data')
+    88        30       353774  11792.5      1.2      data = np.array(sub,'f')
+    89        30        22877    762.6      0.1      f.close()
     90                                           
     91                                               # Get phase
-    92        30     24099272 803309.1     82.7      phase, modulation, intensity = calc_phase(data)
+    92        30     24007012 800233.7     83.4      phase, modulation, intensity = calc_phase(data)
     93                                               
     94                                               # Apply mask
-    95        30       365052  12168.4      1.3      phase[~mask] = 0
-    96        30       397316  13243.9      1.4      intensity[~mask] = 0
-    97        30       395864  13195.5      1.4      modulation[~mask] = 0
-    98        30          983     32.8      0.0      phase = phase[coord[0]:coord[1],coord[2]:coord[3]]
-    99                                               
-   100                                               # Save phase
-   101                                               #print filename
-   102        30       603941  20131.4      2.1      toimage(phase).save(image_phase)
-   103        30      2021901  67396.7      6.9      phase.tofile(binary_phase)
-   104                                               #toimage(phase).show()
-   105                                               
-   106                                               #toimage(phase).show()
-   107                                               #toimage(modulation).show()
-   108                                               #toimage(mask).show()
-   109                                           
-   110        30       400157  13338.6      1.4      ave_mod = np.average(modulation[mask])
-   111        30       400742  13358.1      1.4      ave_int = np.average(intensity[mask])
-   112        30          450     15.0      0.0      timer = time.clock()-z
-   113                                           
-   114        30          503     16.8      0.0      if ave_mod < 0.6:
-   115         3         9260   3086.7      0.0          print filename+' low mod:', ave_mod
-   116                                               else:
-   117        27        26972    999.0      0.1          sys.stdout.write('.')
-   118                                               '''
-   119                                               # Dump to deb
-   120                                               if first:
-   121                                                   X,Y = x_max-x_min, y_max-y_min
-   122                                                   deb+= 'x size,'+str(X)+'\n'
-   123                                                   deb+= 'y size,'+str(Y)+'\n'
-   124                                                   deb+= 'number of files,'+str(len(raw_filenames))+'\n'
-   125                                                   deb+= 'file, instensity, modulation, time\n'
-   126                                               '''
-   127        30          950     31.7      0.0      deb+= filename+','
-   128        30         1589     53.0      0.0      deb+= str(ave_int)+','
-   129        30          657     21.9      0.0      deb+= str(ave_mod)+','
-   130        30          713     23.8      0.0      deb+= str(timer)+'\n'
-   131        30          206      6.9      0.0      return deb
+    95        30        96788   3226.3      0.3      nmask = ~mask
+    96        30       262103   8736.8      0.9      phase[nmask] = 0
+    97        30       280913   9363.8      1.0      intensity[nmask] = 0
+    98        30       274204   9140.1      1.0      modulation[nmask] = 0
+    99        30          891     29.7      0.0      phase = phase[coord[0]:coord[1],coord[2]:coord[3]]
+   100                                               
+   101                                               # Save phase
+   102                                               #print filename
+   103        30       567198  18906.6      2.0      toimage(phase).save(image_phase)
+   104        30      2014026  67134.2      7.0      phase.tofile(binary_phase)
+   105                                               #toimage(phase).show()
+   106                                               
+   107                                               #toimage(phase).show()
+   108                                               #toimage(modulation).show()
+   109                                               #toimage(mask).show()
+   110                                           
+   111        30       384251  12808.4      1.3      ave_mod = np.average(modulation[mask])
+   112        30       411966  13732.2      1.4      ave_int = np.average(intensity[mask])
+   113        30          457     15.2      0.0      timer = time.clock()-z
+   114                                           
+   115        30          472     15.7      0.0      if ave_mod < 0.6:
+   116         3         7667   2555.7      0.0          print filename+' low mod:', ave_mod
+   117                                               else:
+   118        27        23825    882.4      0.1          sys.stdout.write('.')
+   119                                               '''
+   120                                               # Dump to deb
+   121                                               if first:
+   122                                                   X,Y = x_max-x_min, y_max-y_min
+   123                                                   deb+= 'x size,'+str(X)+'\n'
+   124                                                   deb+= 'y size,'+str(Y)+'\n'
+   125                                                   deb+= 'number of files,'+str(len(raw_filenames))+'\n'
+   126                                                   deb+= 'file, instensity, modulation, time\n'
+   127                                               '''
+   128        30          916     30.5      0.0      deb+= filename+','
+   129        30         1535     51.2      0.0      deb+= str(ave_int)+','
+   130        30          661     22.0      0.0      deb+= str(ave_mod)+','
+   131        30          704     23.5      0.0      deb+= str(timer)+'\n'
+   132        30          229      7.6      0.0      return deb
 
