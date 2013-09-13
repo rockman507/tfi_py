@@ -1,0 +1,31 @@
+Average of 10 interactions
+
+Called from gui1.py
+Process=1, time=3.733974
+Process=2, time=3.240570
+Process=3, time=3.621810
+Process=4, time=3.793044
+Process=5, time=4.813963
+Process=6, time=5.374350
+Process=7, time=5.927902
+Process=8, time=6.298794
+Process=9, time=6.384847
+Process=10, time=7.126289
+Process=11, time=7.675376
+Process=12, time=8.576280
+Process=13, time=8.960128
+
+Called from wrapped_phase.py
+Process=1, time=1.895561
+Process=2, time=1.094812
+Process=3, time=0.886117
+Process=4, time=0.682514
+Process=5, time=0.589645
+Process=6, time=0.538674
+Process=7, time=0.541545
+Process=8, time=0.518194
+Process=9, time=0.527064
+Process=10, time=0.532603
+Process=11, time=0.539753
+Process=12, time=0.562433
+Process=13, time=0.583785
