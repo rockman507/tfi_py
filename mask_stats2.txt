@@ -1,0 +1,72 @@
+Timer unit: 4.1058e-07 s
+
+File: mask.py
+Function: get_mask at line 6
+Total time: 3.16083 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     6                                           @profile
+     7                                           def get_mask(path, border=0, size=True):
+     8                                           
+     9                                               #Get mask shape
+    10       100        80513    805.1      1.0      f = File(path, 'r')
+    11       100        46174    461.7      0.6      sub = f.get(r'measurement0/maskshapes/Detector')
+    12       100        52863    528.6      0.7      sub2 = f.get(r'measurement0/frames/frame_full/data')
+    13       100         6074     60.7      0.1      X,Y = sub2.shape
+    14       100          627      6.3      0.0      X -= 2
+    15       100          523      5.2      0.0      Y -= 2
+    16       100        36452    364.5      0.5      temp = sub.attrs.get('shape1')
+    17       100        20318    203.2      0.3      temp = re.split('[| ,]', temp)
+    18       100        59050    590.5      0.8      f.close()
+    19                                           
+    20       100         2074     20.7      0.0      left = int(float(temp[1]))
+    21       100          854      8.5      0.0      top = int(float(temp[3]))
+    22       100          756      7.6      0.0      width = int(float(temp[5]))
+    23       100          535      5.3      0.0      arr_size = temp[-1]
+    24                                           
+    25                                               # If array is quarter size, expand to same size array as phase
+    26       100          847      8.5      0.0      if float(arr_size) < 750:
+    27                                                   left *=2
+    28                                                   top *=2
+    29                                                   width *=2
+    30                                           
+    31                                               # Create circular mask
+    32       100          664      6.6      0.0      r = (width / 2)
+    33       100          533      5.3      0.0      a = top+r
+    34       100          507      5.1      0.0      b = left+r
+    35       100        35664    356.6      0.5      xx,yy=np.ogrid[-a:X-a,-b:Y-b]
+    36       100      1379212  13792.1     17.9      mask = xx*xx + yy*yy < r*r
+    37                                               '''
+    38                                               # Set boundaries of mask
+    39                                               tempx,tempy = np.where(mask)
+    40                                               y_min = tempy.min()-border
+    41                                               y_max = tempy.max()+border+1
+    42                                               x_min = tempx.min()-border
+    43                                               x_max = tempx.max()+border+1
+    44                                               '''
+    45       100         1053     10.5      0.0      y_min = left+1-border
+    46       100          573      5.7      0.0      y_max = left-1+width+border
+    47       100          625      6.2      0.0      x_min = top+1-border
+    48       100          545      5.5      0.0      x_max = top-1+width+border
+    49                                               
+    50                                               #print left, top, width
+    51                                               #print y_min, y_max, x_min, x_max
+    52                                           
+    53       100          527      5.3      0.0      x1 = x_max - x_min
+    54       100          504      5.0      0.0      y1 = y_max - y_min    
+    55       100         6702     67.0      0.1      size1 = np.array([x1,y1], dtype='int')
+    56       100         1604     16.0      0.0      m1 = mask[x_min:x_max,y_min:y_max]
+    57                                           
+    58                                               
+    59       100        12357    123.6      0.2      size_path = os.path.join(os.path.dirname(path), r'size.dat')
+    60       100       158342   1583.4      2.1      size1.tofile(size_path)
+    61       100        11351    113.5      0.1      mask_path = os.path.join(os.path.dirname(path), r'mask.dat')
+    62       100      5778512  57785.1     75.1      m1.tofile(mask_path)
+    63                                           
+    64                                           
+    65       100          993      9.9      0.0      if size:
+    66                                                   return mask, (x_min, x_max, y_min, y_max)
+    67                                               else:
+    68       100          516      5.2      0.0          return mask
+

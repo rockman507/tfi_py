@@ -1,0 +1,64 @@
+Timer unit: 4.1058e-07 s
+
+File: mask.py
+Function: get_mask at line 7
+Total time: 4.52502 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     7                                           @profile
+     8                                           def get_mask(path, border=0, size=True):
+     9                                           
+    10                                               #Get mask shape
+    11       100        86258    862.6      0.8      f = File(path, 'r')
+    12       100        48344    483.4      0.4      sub = f.get(r'measurement0/maskshapes/Detector')
+    13       100        53376    533.8      0.5      sub2 = f.get(r'measurement0/frames/frame_full/data')
+    14       100         6404     64.0      0.1      X,Y = sub2.shape
+    15       100          630      6.3      0.0      X -= 2
+    16       100          520      5.2      0.0      Y -= 2
+    17       100        37059    370.6      0.3      temp = sub.attrs.get('shape1')
+    18       100        12925    129.2      0.1      temp = re.split('[| ,]', temp)
+    19       100        58670    586.7      0.5      f.close()
+    20                                           
+    21       100         2102     21.0      0.0      left = int(float(temp[1]))
+    22       100          843      8.4      0.0      top = int(float(temp[3]))
+    23       100          750      7.5      0.0      width = int(float(temp[5]))
+    24       100          518      5.2      0.0      arr_size = temp[-1]
+    25                                           
+    26                                               # If array is quarter size, expand to same size array as phase
+    27       100          848      8.5      0.0      if float(arr_size) < 750:
+    28                                                   left *=2
+    29                                                   top *=2
+    30                                                   width *=2
+    31                                           
+    32                                               # Create circular mask
+    33       100          675      6.8      0.0      r = (width / 2)
+    34       100          554      5.5      0.0      a = top+r
+    35       100          506      5.1      0.0      b = left+r
+    36       100        35816    358.2      0.3      xx,yy=np.ogrid[-a:X-a,-b:Y-b]
+    37       100      1346181  13461.8     12.2      mask = xx*xx + yy*yy < r*r
+    38                                               
+    39                                               # Set boundaries of mask
+    40       100      3326161  33261.6     30.2      tempx,tempy = np.where(mask)
+    41       100        60501    605.0      0.5      y_min = tempy.min()-border
+    42       100        55360    553.6      0.5      y_max = tempy.max()+border+1
+    43       100        53109    531.1      0.5      x_min = tempx.min()-border
+    44       100        57248    572.5      0.5      x_max = tempx.max()+border+1
+    45                                           
+    46       100          801      8.0      0.0      x1 = x_max - x_min
+    47       100          868      8.7      0.0      y1 = y_max - y_min    
+    48       100         5655     56.5      0.1      size1 = np.array([x1,y1], dtype='int')
+    49       100         3030     30.3      0.0      m1 = mask[x_min:x_max,y_min:y_max]
+    50                                           
+    51                                               
+    52       100        11696    117.0      0.1      size_path = os.path.join(os.path.dirname(path), r'size.dat')
+    53       100       163728   1637.3      1.5      size1.tofile(size_path)
+    54       100        10828    108.3      0.1      mask_path = os.path.join(os.path.dirname(path), r'mask.dat')
+    55       100      5577395  55773.9     50.6      m1.tofile(mask_path)
+    56                                           
+    57                                           
+    58       100         1149     11.5      0.0      if size:
+    59                                                   return mask, (x_min, x_max, y_min, y_max)
+    60                                               else:
+    61       100          533      5.3      0.0          return mask
+

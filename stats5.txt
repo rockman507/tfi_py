@@ -1,0 +1,65 @@
+Timer unit: 4.1058e-07 s
+
+File: calc_phase.py
+Function: calc_phase at line 5
+Total time: 0.130047 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     5                                           @profile
+     6                                           def calc_phase (data):
+     7                                           
+     8                                               # Setup 9-pixels
+     9         1           69     69.0      0.0      I1 = data[:-2,:-2] 
+    10         1           22     22.0      0.0      I2 = data[:-2,1:-1] 
+    11         1           18     18.0      0.0      I3 = data[:-2,2:] 
+    12         1           17     17.0      0.0      I4 = data[1:-1,:-2] 
+    13         1           16     16.0      0.0      I5 = data[1:-1,1:-1] 
+    14         1           16     16.0      0.0      I6 = data[1:-1,2:] 
+    15         1           17     17.0      0.0      I7 = data[2:,:-2] 
+    16         1           17     17.0      0.0      I8 = data[2:,1:-1] 
+    17         1           16     16.0      0.0      I9 = data[2:,2:]
+    18                                           
+    19                                               # Intensity and modulation stolen from Jason by Jason
+    20         1        32896  32896.0     10.4      intensity = I5 + 0.5*(I2+I4+I6+I8) + 0.25*(I1+I3+I5+I7+I9)
+    21                                               
+    22                                               #quality = np.array(modulation > 0.0, 'b')
+    23                                               
+    24         1        13390  13390.0      4.2      num = 2*(I2+I8-I4-I6)+.0001 #addition to avoid division by zero
+    25         1        16905  16905.0      5.3      den = 4*I5-I1-I3-I7-I9+.0001 #addition to avoid division by zero
+    26                                           
+    27         1        31733  31733.0     10.0      modulation = np.sqrt(num**2+den**2)/(2*intensity+.0001)
+    28         1         6018   6018.0      1.9      modulation[modulation>1]=0
+    29                                           
+    30                                               # Create two masks when atan and acot need to be applied
+    31         1           72     72.0      0.0      a = np.zeros(modulation.shape, 'b')
+    32         1          252    252.0      0.1      a[::2,::2]=1
+    33         1          190    190.0      0.1      a[1::2,1::2]=1
+    34         1         1274   1274.0      0.4      a_mask = np.array(a,'bool')
+    35         1         1756   1756.0      0.6      b = np.array(-a+1)
+    36         1        44898  44898.0     14.2      a = a*np.arctan(num/den)
+    37         1        45396  45396.0     14.3      b = b*np.arctan(den/num) #acot
+    38         1         2274   2274.0      0.7      phase = np.array((a+b),'f')
+    39                                               
+    40         1           68     68.0      0.0      a_mask = np.zeros(modulation.shape, 'bool')
+    41         1          121    121.0      0.0      a_mask[::2,::2]=True
+    42         1          109    109.0      0.0      a_mask[1::2,1::2]=True
+    43         1         5741   5741.0      1.8      tmp1 = num/den
+    44         1        17455  17455.0      5.5      tmp1[~a_mask] = 1/tmp1[~a_mask]
+    45         1        37794  37794.0     11.9      phase = np.array(np.arctan(tmp1),'f')
+    46                                           
+    47                                               # Fix me some phase offsets
+    48         1        13584  13584.0      4.3      phase[(~a_mask) & (phase<0) & (num>0)] += np.pi
+    49         1        12601  12601.0      4.0      phase[(a_mask) & (phase<0) & (den>0)] += np.pi
+    50         1        16361  16361.0      5.2      phase[(phase>0) & (phase<np.pi/2) & (num>0)] -= np.pi
+    51         1          469    469.0      0.1      phase[:,::2] += np.pi
+    52         1        11409  11409.0      3.6      phase[phase>=np.pi] -= 2*np.pi
+    53                                           
+    54                                               # Map phase [-2pi:2pi] -> [0,255]
+    55         1            9      9.0      0.0      t2 = 255/(2*np.pi)
+    56         1          801    801.0      0.3      phase+=np.pi
+    57         1          819    819.0      0.3      phase*=t2
+    58         1         2129   2129.0      0.7      phase = np.array(phase,'B')
+    59                                           
+    60         1            7      7.0      0.0      return phase, modulation, intensity
+

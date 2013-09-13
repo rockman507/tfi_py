@@ -1,0 +1,3 @@
+LIBRARY calc_phase.pyd
+EXPORTS
+initcalc_phase

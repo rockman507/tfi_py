@@ -1,0 +1,34 @@
+Timer unit: 4.1058e-07 s
+
+File: calc_phase.py
+Function: main1 at line 55
+Total time: 0.141925 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    55                                           @profile
+    56                                           def main1():
+    57                                               # data.bin is a test 500x500 float array
+    58         1         2448   2448.0      0.7      print 'Opening data.bin'
+    59         1           11     11.0      0.0      try:
+    60         1          221    221.0      0.1          f = open(r'test_data\data.bin','rb')
+    61         1           10     10.0      0.0          data = array.array('f')
+    62         1         1320   1320.0      0.4          data.fromfile(f,250000)
+    63         1           36     36.0      0.0          f.close()
+    64         1        97917  97917.0     28.3          data = np.array(data)
+    65         1           48     48.0      0.0          data.resize(500,500)
+    66         1            7      7.0      0.0          try:
+    67         1         1509   1509.0      0.4              sys.stdout.write('Trying calc_phase(data) ')
+    68         1       237330 237330.0     68.7              phase, modulation, intensity = calc_phase(data)
+    69         1         2390   2390.0      0.7              print 'passed'
+    70         1           15     15.0      0.0              try:
+    71         1         1163   1163.0      0.3                  sys.stdout.write('Trying to display phase ')
+    72                                                           #toimage(phase).show()
+    73         1         1244   1244.0      0.4                  print 'passed'
+    74                                                       except:
+    75                                                           print 'failed'
+    76                                                   except:
+    77                                                       print 'failed'
+    78                                               except:
+    79                                                   print 'file read error'
+
