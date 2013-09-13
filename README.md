@@ -2,10 +2,10 @@ cgui1
 =====
 First time trying to use a respository.
 
-This is a project for taking data from a Twyman-Green interferometer camera and:
-  *Extract phase using 9-bin bucket algorithm
-  *Unwrap phase via unwrap algorithms in compiled C code
-  *Apply a Zernike fit
+This is a project for taking data from a Twyman-Green interferometer camera and:\n
+  *Extract phase using 9-bin bucket algorithm\n
+  *Unwrap phase via unwrap algorithms in compiled C code\n
+  *Apply a Zernike fit\n
   
 
 
