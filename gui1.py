@@ -10,6 +10,7 @@ from mask import get_mask
 from PIL import Image
 from scipy.misc import toimage
 from multiprocessing import Pool
+#from __future__ import print_function
 
 
 #Libraries required:
