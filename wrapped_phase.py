@@ -1,6 +1,8 @@
 # system libraries
-from scipy.misc import toimage
-from easygui import diropenbox
+#from scipy.misc import toimage
+#from easygui import diropenbox
+from PIL import Image
+from tkinter.filedialog import askdirectory
 from h5py import File
 import numpy as np
 import time, os, sys
@@ -19,9 +21,9 @@ def get_path(path, filetype):
     if not os.path.isdir(path_raw):
         try:
             os.mkdir(path_raw)
-            print 'Creating path \"'+path_raw+'\"'
+            print('Creating path \"'+path_raw+'\"')
         except:
-            print 'Failed creating path \"'+path_raw+'\"'
+            print('Failed creating path \"'+path_raw+'\"')
     '''
     path_images = os.path.join(path,r'images\wrapped')
     if not os.path.isdir(path_images):
@@ -38,32 +40,32 @@ def get_path(path, filetype):
         imagep = r'images\wrapped'
         raw_filenames = os.listdir(path)
         for raw_filename in raw_filenames[:]:
-            if 'meas_.h5' <> raw_filename[:5]+raw_filename[10:]:
+            if 'meas_.h5' != raw_filename[:5]+raw_filename[10:]:
                 raw_filenames.remove(raw_filename)
 
     if filetype == 'wrapped':
         imagep = r'images\surface'
         raw_filenames = os.listdir(path_raw)
         for raw_filename in raw_filenames[:]:
-            if 'wrapped_.dat' <> raw_filename[:8]+raw_filename[13:]:
+            if 'wrapped_.dat' != raw_filename[:8]+raw_filename[13:]:
                 raw_filenames.remove(raw_filename)
 
     if filetype == 'unwrapped':
         imagep = r'images\zernike'
         raw_filenames = os.listdir(path_raw)
         for raw_filename in raw_filenames[:]:
-            if 'unwrapped_.dat' <> raw_filename[:10]+raw_filename[15:]:
+            if 'unwrapped_.dat' != raw_filename[:10]+raw_filename[15:]:
                 raw_filenames.remove(raw_filename)
 
     path_images = os.path.join(path,imagep)
     if not os.path.isdir(path_images):
         try:
             os.makedirs(path_images)
-            print 'Creating path \"'+path_images+'\"'
+            print('Creating path \"'+path_images+'\"')
         except:
-            print 'Failed creating path \"'+path_images+'\"'
+            print('Failed creating path \"'+path_images+'\"')
 
-    print raw_filenames
+    print(raw_filenames)
 
     return path_raw, path_images, raw_filenames
 
@@ -90,7 +92,7 @@ def get_phase(args):
     try:
         f = File(file_in, 'r')
     except:
-        print 'Corrupt h5 file: '+filename+' ignoring'
+        print('Corrupt h5 file: '+filename+' ignoring')
         return
     sub = f.get(r'measurement0/frames/frame_full/data')
     data = np.array(sub[coord[0]-1:coord[1]+1,coord[2]-1:coord[3]+1],'f')
@@ -105,7 +107,8 @@ def get_phase(args):
     #phase = phase[coord[0]:coord[1],coord[2]:coord[3]]
     
     # Save phase
-    toimage(phase).save(image_phase)
+    phasei = Image.fromarray(phase)
+    phasei.save(image_phase)
     phase.tofile(binary_phase)
 
 
@@ -124,10 +127,11 @@ def get_phase(args):
 
 
 if __name__ == '__main__':
-    
+    #path = askdirectory()
     #path = diropenbox('Pick directory to process',default=r'c:\phase')
-    path = r'C:\Users\jsaredy\Desktop\4 1_20130710'
+    #path = r'C:\Users\jsaredy\Desktop\4 1_20130710'
     #path = r'C:\Users\jsaredy\Desktop\run3'
+    path = r'C:\4 1_20130710'
     path_raw, path_images, filenames = get_path(path, 'h5')
     first_file = os.path.join(path,filenames[0])
     mask,coord = get_mask(first_file, border=2)
@@ -137,6 +141,7 @@ if __name__ == '__main__':
     deb = ''
     #for filename in filenames:
     #    deb = get_phase(filename, path, path_raw, path_images, mask, coord, deb)
+    '''
     pool = Pool()
     A=[]
     for filename in filenames:
@@ -146,14 +151,14 @@ if __name__ == '__main__':
     #imap1 = map(get_phase,A)
     pool.close()
     pool.join()
-    print str(time.clock()-zz)
+    print(str(time.clock()-zz))
     for x in imap1:
         deb+=x
-    print str(time.clock()-zz)
-
-    for ii in xrange(1,14):
+    print(str(time.clock()-zz))
+    '''
+    for ii in range(1,14):
         zz = time.clock()
-        for jj in xrange(10):
+        for jj in range(1):
             pool = Pool(processes=ii)
             A=[]
             for filename in filenames:
@@ -169,7 +174,7 @@ if __name__ == '__main__':
                 deb+= x
                 #print x
         zz = time.clock()-zz
-        print ('Process=%d, time=%f')%(ii,zz/10)
+        print('Process=%d, time=%f',(ii,(zz/10)))
 
 
     #print deb

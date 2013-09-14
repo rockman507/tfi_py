@@ -6,5 +6,6 @@ import numpy
 setup(
     cmdclass = {'build_ext': build_ext},
     ext_modules = [Extension("calc_phase", ["calc_phase.pyx"],include_dirs=[numpy.get_include()])]
+    #ext_modules = [Extension("calc_phase", ["calc_phase.pyx"])]
     
 )

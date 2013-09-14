@@ -13,7 +13,7 @@ def get_mask(path, border=0, size=True):
     X,Y = sub2.shape
     X -= 2
     Y -= 2
-    temp = sub.attrs.get('shape1')
+    temp = str(sub.attrs.get('shape1'))
     temp = re.split('[| ,]', temp)
     f.close()
 
@@ -21,6 +21,7 @@ def get_mask(path, border=0, size=True):
     top = int(float(temp[3]))
     width = int(float(temp[5]))
     arr_size = temp[-1]
+    arr_size = temp[-1][:-1]
 
     # If array is quarter size, expand to same size array as phase
     if float(arr_size) < 750:
@@ -78,9 +79,9 @@ if __name__ == '__main__':
         sys.stdout.write('Running get_mask(%s, border=%d, size=%s):'%(file_,border,size))
         for i in xrange(100):
             mask = get_mask(file_, border=border, size=size)
-        print ' pass'
+        print(' pass')
     except:
-        print 'failed'
+        print('failed')
     '''
     size = True
     try:
