@@ -8,8 +8,8 @@ import time
 import os, re
 import subprocess
 from scipy.misc import toimage
-from easygui import diropenbox, fileopenbox, choicebox
-import win32api
+#from easygui import diropenbox, fileopenbox, choicebox
+#import win32api
 from wrapped_phase import get_path
 import multiprocessing  
 
@@ -81,8 +81,8 @@ def unwrap(args):
 
 if __name__ == '__main__':
     # Get path
-    path = diropenbox('Pick directory to process',default=r'd:\phase')
-    path = win32api.GetShortPathName(path)
+    #path = diropenbox('Pick directory to process',default=r'd:\phase')
+    #path = win32api.GetShortPathName(path)
     path_raw, path_images, filenames = get_path(path, filetype = 'unwrapped')
     algorithm_exe = fileopenbox('Pick algorithm exe to use',default=r'd:\phase')
     '''
