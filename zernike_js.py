@@ -106,14 +106,14 @@ if __name__ == '__main__':
     # Get unwrapped arrays
     raw_filenames = listdir(path_raw)
     for raw_filename in raw_filenames[:]:
-        if 'unwrapped_.dat' <> raw_filename[:10]+raw_filename[15:]:
+        if 'unwrapped_.dat' != raw_filename[:10]+raw_filename[15:]:
             raw_filenames.remove(raw_filename)
     temp = 'piston, tilt, astrig, power, sphere\n'           
-    print str(clock()-tmpz)
+    print(str(clock()-tmpz))
     for filename in raw_filenames:
         temp = get_zernike(filename, path, path_raw, path_images, temp, mask, arr_size, 15)
         break
 
-    print temp
+    print(temp)
 
 
