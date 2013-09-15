@@ -1,8 +1,9 @@
-from Tkinter import *
-from easygui import diropenbox
-import win32api
-import tkMessageBox
-import time, ImageTk, re, os
+from tkinter import *
+#from easygui import diropenbox
+#import win32api
+#import tkMessageBox
+import time, re, os
+#import ImageTk
 from wrapped_phase import *
 from unwrap_phase import *
 from zernike_js import *
@@ -10,6 +11,7 @@ from mask import get_mask
 from PIL import Image
 from scipy.misc import toimage
 from multiprocessing import Pool
+from tkinter.filedialog import askdirectory
 #from __future__ import print_function
 
 
@@ -45,9 +47,9 @@ def phase() :
     #zz = 0
     zz = time.clock()
 
-    for ii in xrange(1,14):
+    for ii in range(1,2):
         zz = time.clock()
-        for jj in xrange(10):
+        for jj in range(2):
             pool = Pool(processes=ii)
             A=[]
             for filename in filenames:
@@ -63,7 +65,7 @@ def phase() :
                 deb+= x
                 #print x
         zz = time.clock()-zz
-        print ('Process=%d, time=%f')%(ii,zz/10)
+        print('Process=%d, time=%f',(ii,(zz/10)))
 
     '''    
     for filename in filenames:
@@ -106,7 +108,7 @@ def phase() :
     t.set('Finished in %f seconds'%zz)'''
 #End phase()
 
-
+"""
 #Unwrap phase with selected algorithm
 #   parent = algorithm choice window
 #   listb = list button with choosen unwrap algorithm
@@ -253,7 +255,7 @@ def zernike(mode) :
 
     zz = time.clock()-zz
 
-    print tt
+    print(tt)
 
     '''
     for filename in filenames:
@@ -323,12 +325,7 @@ def zernike_options() :
     runZernike.grid(row=1, columnspan=2)
 
 
-def phase_options() :
-    #Only run when there is a path chosen
-    path = path_entry.get()
-    if not path:
-        return
-    phase()
+
 
 
 def test_zmode(self) :
@@ -346,16 +343,25 @@ def test_zmode(self) :
     # Destroy window and run zernike after checking input, otherwise errors in zernike are masked
     self.destroy()
     zernike(mode)
+"""
 
+def phase_options() :
+    #Only run when there is a path chosen
+    path = path_entry.get()
+    if not path:
+        return
+    phase()
 
 #Get directory to process, saves to path_entry
 def get_directory() :
-    path = diropenbox('Pick directory to process',default=r'c:\phase')
+    #path = diropenbox('Pick directory to process',default=r'c:\phase')
+    path = askdirectory()
     #Avoids a crash if the directory window is closed without choosing a directory
     try:
         #Unwrap call is a CMD.exe call so spaces in path name will crash the call
         #GetShortPathName returns 8.3 compatable file name
-        path = win32api.GetShortPathName(path)
+        #path = win32api.GetShortPathName(path)
+        #path = path_convert(path)
         #path = path_convert(path)
         path_entry.set(path)
     except:
@@ -376,7 +382,7 @@ def path_convert(a):
    return path
 
 
-    
+"""    
 
 # Make a window with unwrapped surface and zernike fit removed of the first image of the dataset
 def check_zernike_surface():
@@ -452,14 +458,14 @@ def draw_2images(surface_file1, surface_file2):
     test_destroy = Button(win, text='Close', command=win.destroy)
     test_destroy.grid(row=2)
 #End check_zernike_surface()
-    
+"""    
 
 if __name__ == '__main__':
     root = Tk()
     root.wm_title('TFI phase unwrapping')
 
-    zernike_mode = StringVar()
-    zernike_mode.set('15')
+    #zernike_mode = StringVar()
+    #zernike_mode.set('15')
 
     exe_name = StringVar()
     f1 = Frame(root)
@@ -478,16 +484,16 @@ if __name__ == '__main__':
     quitButton = Button(root, text='Close', command=root.destroy)
     quitButton.grid(row=2)
 
-    b3 = Button(root, text='Unwrap', command=unwrap_options)
-    b3.grid(row=1, column=1)
+    #b3 = Button(root, text='Unwrap', command=unwrap_options)
+    #b3.grid(row=1, column=1)
 
-    b_zern = Button(root, text='Zernike', command=zernike_options)
-    b_zern.grid(row=1, column=2)
+    #b_zern = Button(root, text='Zernike', command=zernike_options)
+    #b_zern.grid(row=1, column=2)
 
-    b4 = Button(root, text='test', command=check_zernike_surface)
-    b4.grid(row=3, column=1)
+    #b4 = Button(root, text='test', command=check_zernike_surface)
+    #b4.grid(row=3, column=1)
 
-    root.focus()
+    #root.focus()
 
     root.mainloop()
 
