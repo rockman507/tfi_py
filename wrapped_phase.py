@@ -156,9 +156,9 @@ if __name__ == '__main__':
         deb+=x
     print(str(time.clock()-zz))
     '''
-    for ii in range(1,14):
+    for ii in range(1,5):
         zz = time.clock()
-        for jj in range(1):
+        for jj in range(10):
             pool = Pool(processes=ii)
             A=[]
             for filename in filenames:

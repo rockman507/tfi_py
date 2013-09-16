@@ -1,11 +1,12 @@
 import numpy as np
 from h5py import File
-import os, re
+import os
+import tfi_gui
 
 
 #@profile
 def get_mask(path, border=0, size=True):
-
+    #import re
     #Get mask shape
     f = File(path, 'r')
     sub = f.get(r'measurement0/maskshapes/Detector')
@@ -75,6 +76,7 @@ if __name__ == '__main__':
     file_ = r'test_data\test_h5.h5'
     border = 6
     size = False
+    get_mask(file_, border=border, size=size)
     try:
         sys.stdout.write('Running get_mask(%s, border=%d, size=%s):'%(file_,border,size))
         for i in xrange(100):

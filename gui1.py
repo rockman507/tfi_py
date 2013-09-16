@@ -2,11 +2,11 @@ from tkinter import *
 #from easygui import diropenbox
 #import win32api
 #import tkMessageBox
-import time, re, os
+#import time, re, os
 #import ImageTk
 from wrapped_phase import *
-from unwrap_phase import *
-from zernike_js import *
+#from unwrap_phase import *
+#from zernike_js import *
 from mask import get_mask
 from PIL import Image
 from scipy.misc import toimage
@@ -466,6 +466,9 @@ if __name__ == '__main__':
 
     #zernike_mode = StringVar()
     #zernike_mode.set('15')
+
+    t21 = re.split(string=" tes test tes", pattern=' ')
+    print(t21)
 
     exe_name = StringVar()
     f1 = Frame(root)
