@@ -12,6 +12,8 @@ from PIL import Image
 from scipy.misc import toimage
 from multiprocessing import Pool
 from tkinter.filedialog import askdirectory
+import tfi_py
+import re
 #from __future__ import print_function
 
 
@@ -24,66 +26,6 @@ from tkinter.filedialog import askdirectory
 #Extract phase using 9-bin algorithm
 def phase() :
     
-    
-
-    #Get path, filenames, and mask setup
-    path = path_entry.get()
-    path_raw, path_images, filenames = get_path(path, filetype = 'h5')
-    first_file = os.path.join(path,filenames[0])
-    mask,coord = get_mask(first_file, border=2)
-    mask = mask[coord[0]:coord[1],coord[2]:coord[3]] 
-
-    #Setup summary string
-    deb = 'x size,'+str(coord[1]-coord[0])+'\n'
-    deb+= 'y size,'+str(coord[3]-coord[2])+'\n'
-    deb+= 'number of files,'+str(len(filenames))+'\n'
-    deb+= 'file, instensity, modulation, time\n'
-
-    #Run 9-bin phase wrap
-    i = 0
-    maxf = str(len(filenames))
-    #t.set(str(i)+'/'+maxf)
-    #win.update()
-    #zz = 0
-    zz = time.clock()
-
-    for ii in range(1,2):
-        zz = time.clock()
-        for jj in range(2):
-            pool = Pool(processes=ii)
-            A=[]
-            for filename in filenames:
-                A.append((filename, path, path_raw, path_images, mask, coord))
-            imap1 = pool.map(get_phase,A)
-            #imap1 = map(get_phase,A)
-            pool.close()
-            
-            for x in imap1:
-                #t.set(str(i)+'/'+maxf)
-                #win.update()
-                #i+=1
-                deb+= x
-                #print x
-        zz = time.clock()-zz
-        print('Process=%d, time=%f',(ii,(zz/10)))
-
-    '''    
-    for filename in filenames:
-        t.set(str(i))
-        win.update()
-        z = time.clock()
-        deb = get_phase(filename, path, path_raw, path_images, mask, coord, deb)
-        zz+=time.clock()-z
-        i+=1
-    '''
-
-    #Print summary and save to ./debug.csv
-    #print deb
-    f_debug = os.path.join(path,'debug.csv')
-    f_debug = open(f_debug,'w')
-    f_debug.write(deb)
-    f_debug.close()
-    '''
     #Create window
     win = Toplevel()
     win.wm_title('Extracting phase')
@@ -100,12 +42,55 @@ def phase() :
     b1 = Button(win, textvariable=t1, command=win.destroy)
     b1.grid(row=1)
 
+
+    #Get path, filenames, and mask setup
+    path = path_entry.get()
+    path_raw, path_images, filenames = get_path(path, filetype = 'h5')
+    first_file = os.path.join(path,filenames[0])
+    mask,coord = get_mask(first_file, border=2)
+    mask = mask[coord[0]:coord[1],coord[2]:coord[3]]
+
     #Draw window widgets
+    maxf = str(len(filenames))
+    t.set('0/'+maxf)
     win.update()
+
+    #Setup summary string
+    summary = 'x size,'+str(coord[1]-coord[0])+'\n'
+    summary+= 'y size,'+str(coord[3]-coord[2])+'\n'
+    summary+= 'number of files,'+str(len(filenames))+'\n'
+    summary+= 'file, instensity, modulation\n'
+
+    #Run 9-bin phase wrap
+    i = 0
+    A=[]
+    zz = time.clock()
+    pool = Pool(processes=8)
+
+    for filename in filenames:
+        A.append((filename, path, path_raw, path_images, mask, coord))
+    
+    for x in pool.map(get_phase,A):
+        t.set(str(i)+'/'+maxf)
+        win.update()
+        i+=1
+        summary+= x
+        
+    zz = time.clock()-zz
+    pool.close()
+
+    #Print summary and save to ./debug.csv
+    print(summary)
+    f_debug = os.path.join(path,'debug.csv')
+    f_debug = open(f_debug,'w')
+    f_debug.write(summary)
+    f_debug.close()
+
 
     #Display runtime and change close button text to 'close'
     t1.set('Close')
-    t.set('Finished in %f seconds'%zz)'''
+    t.set('Finished in %f seconds'%zz)
+    
 #End phase()
 
 """
@@ -464,11 +449,8 @@ if __name__ == '__main__':
     root = Tk()
     root.wm_title('TFI phase unwrapping')
 
-    #zernike_mode = StringVar()
-    #zernike_mode.set('15')
-
-    t21 = re.split(string=" tes test tes", pattern=' ')
-    print(t21)
+    zernike_mode = StringVar()
+    zernike_mode.set('15')
 
     exe_name = StringVar()
     f1 = Frame(root)
@@ -495,8 +477,6 @@ if __name__ == '__main__':
 
     #b4 = Button(root, text='test', command=check_zernike_surface)
     #b4.grid(row=3, column=1)
-
-    #root.focus()
 
     root.mainloop()
 
