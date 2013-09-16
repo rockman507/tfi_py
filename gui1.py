@@ -1,11 +1,11 @@
 from tkinter import *
 #from easygui import diropenbox
-#import win32api
+from win32.win32api import GetShortPathName
 #import tkMessageBox
 #import time, re, os
 #import ImageTk
 from wrapped_phase import *
-#from unwrap_phase import *
+from unwrap_phase import *
 #from zernike_js import *
 from mask import get_mask
 from PIL import Image
@@ -93,7 +93,7 @@ def phase() :
     
 #End phase()
 
-"""
+
 #Unwrap phase with selected algorithm
 #   parent = algorithm choice window
 #   listb = list button with choosen unwrap algorithm
@@ -142,27 +142,41 @@ def start_unwrap(parent,listb,win_show):
     t.set(str(i)+'/'+maxf)
     win.update()
     zz = time.clock()
-
     pool = Pool()
-    A=[]
-    for filename in filenames:
-        A.append((filename,path,path_raw,path_images,exe,ysize,xsize,bool(win_show)))
 
+    for ii in range(1,14):
+        zz = time.clock()
+        i = 0
+        for jj in range(5):
+            pool = Pool(processes=ii)
+
+            A=[]
+            for filename in filenames:
+                A.append((filename,path,path_raw,path_images,exe,ysize,xsize,bool(win_show)))
+            imap1 = pool.imap(unwrap,A)
+            pool.close()
+            for x in imap1:
+                i+=1
+                t.set(str(i)+'/'+maxf)
+                win.update()
+        zz = time.clock()-zz
+        print('Process={}, time={}'.format(ii,(zz/5)))
         
-    imap1 = pool.imap(unwrap,A)
+    #imap1 = pool.imap(unwrap,A)
+    #imap1 = map(unwrap,A)
 
     tt = ''
-    for x in imap1:
-        i+=1
-        t.set(str(i)+'/'+maxf)
-        win.update()
-        tt+=x
-    pool.close()
+    #for x in imap1:
+    #    i+=1
+    #    t.set(str(i)+'/'+maxf)
+    #    win.update()
+    #   tt+=x
+    #pool.close()
 
 
 
     zz = time.clock()-zz
-    
+    print(tt)
     '''
     #Print summary and update ./debug.csv
     f1 = os.path.join(path,r'debug.csv')
@@ -328,7 +342,7 @@ def test_zmode(self) :
     # Destroy window and run zernike after checking input, otherwise errors in zernike are masked
     self.destroy()
     zernike(mode)
-"""
+
 
 def phase_options() :
     #Only run when there is a path chosen
@@ -345,13 +359,13 @@ def get_directory() :
     try:
         #Unwrap call is a CMD.exe call so spaces in path name will crash the call
         #GetShortPathName returns 8.3 compatable file name
-        #path = win32api.GetShortPathName(path)
+        path = GetShortPathName(path)
         #path = path_convert(path)
         #path = path_convert(path)
         path_entry.set(path)
     except:
         pass
-
+'''
 def path_convert(a):
    path=''
    a = re.split('\\\\',a)
@@ -365,9 +379,9 @@ def path_convert(a):
                b = b+r'~1'
        path = os.path.join(path,b)
    return path
+'''
 
-
-"""    
+   
 
 # Make a window with unwrapped surface and zernike fit removed of the first image of the dataset
 def check_zernike_surface():
@@ -443,7 +457,7 @@ def draw_2images(surface_file1, surface_file2):
     test_destroy = Button(win, text='Close', command=win.destroy)
     test_destroy.grid(row=2)
 #End check_zernike_surface()
-"""    
+
 
 if __name__ == '__main__':
     root = Tk()
@@ -469,8 +483,8 @@ if __name__ == '__main__':
     quitButton = Button(root, text='Close', command=root.destroy)
     quitButton.grid(row=2)
 
-    #b3 = Button(root, text='Unwrap', command=unwrap_options)
-    #b3.grid(row=1, column=1)
+    b3 = Button(root, text='Unwrap', command=unwrap_options)
+    b3.grid(row=1, column=1)
 
     #b_zern = Button(root, text='Zernike', command=zernike_options)
     #b_zern.grid(row=1, column=2)

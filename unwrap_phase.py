@@ -58,6 +58,8 @@ def unwrap(args):
     # Open process call to c algorithm, uncomment su definitions to make process window hidden
     P = subprocess.Popen(r'"%s" -input %s -format byte -output %s -xsize %s -ysize %s -bmask %s %s' \
               % (algorithm_exe, wrapped_file, unwrapped_file, ysize, xsize, mask_file, arg), shell=not win_show)
+    #P = subprocess.check_output([algorithm_exe, r" -input ", wrapped_file, r" -format byte -output ", unwrapped_file, r" -xsize ", str(ysize), r" -ysize ", str(xsize), r" -bmask ", mask_file, arg])
+    #print(algorithm_exe, " -input ", wrapped_file, " -format byte -output ", unwrapped_file, " -xsize ", ysize, " -ysize ", xsize, " -bmask ", mask_file, arg)
     P.wait() # Wait until process completes before opening new process
 
     # Opens new surface file applying mask
