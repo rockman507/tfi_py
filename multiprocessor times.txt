@@ -1,6 +1,7 @@
 Average of 10 interactions
 
 Called from gui1.py
+Python 2.7 x32:
 Process=1, time=3.733974
 Process=2, time=3.240570
 Process=3, time=3.621810
@@ -15,7 +16,25 @@ Process=11, time=7.675376
 Process=12, time=8.576280
 Process=13, time=8.960128
 
+Python 3.3 x64:
+Process=1, time=1.9148696242695773
+Process=2, time=1.1745971794762309
+Process=3, time=0.9771652372991028
+Process=4, time=0.7736542403111208
+Process=5, time=0.7078036981806356
+Process=6, time=0.6464961060545846
+Process=7, time=0.6551731910644542
+Process=8, time=0.6490236395825875
+Process=9, time=0.6632605182511242
+Process=10, time=0.689546579536011
+Process=11, time=0.7106463932966989
+Process=12, time=0.74272833202495
+Process=13, time=0.7737027709256452
+
+
+
 Called from wrapped_phase.py
+Python 2.7 x32:
 Process=1, time=1.895561
 Process=2, time=1.094812
 Process=3, time=0.886117
@@ -29,3 +48,18 @@ Process=10, time=0.532603
 Process=11, time=0.539753
 Process=12, time=0.562433
 Process=13, time=0.583785
+
+Python 3.3 x64:
+Process=1, time=1.8987099560843101
+Process=2, time=1.1468761393608742
+Process=3, time=0.9471645311006516
+Process=4, time=0.7638228082392011
+Process=5, time=0.6868525556172337
+Process=6, time=0.7026800231238937
+Process=7, time=0.6826009945901909
+Process=8, time=0.6284066274261193
+Process=9, time=0.6451486219276262
+Process=10, time=0.6603386221575519
+Process=11, time=0.6934479975168102
+Process=12, time=0.7212521391243797
+Process=13, time=0.7575237643990576
