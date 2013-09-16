@@ -2,7 +2,7 @@ import numpy as np
 from os.path import join
 from os import listdir
 from time import clock
-from zern import fit_zernike
+from libtim.zern import fit_zernike
 from scipy.misc import toimage
 #cimport numpy as np
 #import ctypes
