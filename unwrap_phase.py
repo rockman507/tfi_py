@@ -78,7 +78,7 @@ def unwrap(args):
     # Saves surface image
     toimage(arr).save(image_file)
     
-    return (filename+','+str(rms))
+    return (','+str(rms))
 
 
 if __name__ == '__main__':
