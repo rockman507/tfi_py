@@ -134,7 +134,7 @@ def start_unwrap(parent,listb,win_show):
 
     #Get array size and summary string from file
     xsize, ysize, data = unwrap_setup(path)
-    data[3]+= ','+exe_name+' rms,'+exe_name+' time'
+    data[3]+= ','+exe_name+' rms'
 
     #Run unwrap
     i = 0
@@ -142,51 +142,29 @@ def start_unwrap(parent,listb,win_show):
     t.set(str(i)+'/'+maxf)
     win.update()
     zz = time.clock()
-    pool = Pool()
 
-    for ii in range(1,14):
-        zz = time.clock()
-        i = 0
-        for jj in range(5):
-            pool = Pool(processes=ii)
+    pool = Pool(processes=10)
 
-            A=[]
-            for filename in filenames:
-                A.append((filename,path,path_raw,path_images,exe,ysize,xsize,bool(win_show)))
-            imap1 = pool.imap(unwrap,A)
-            pool.close()
-            for x in imap1:
-                i+=1
-                t.set(str(i)+'/'+maxf)
-                win.update()
-        zz = time.clock()-zz
-        print('Process={}, time={}'.format(ii,(zz/5)))
-        
-    #imap1 = pool.imap(unwrap,A)
-    #imap1 = map(unwrap,A)
-
-    tt = ''
-    #for x in imap1:
-    #    i+=1
-    #    t.set(str(i)+'/'+maxf)
-    #    win.update()
-    #   tt+=x
-    #pool.close()
-
-
-
+    A=[]
+    for filename in filenames:
+        A.append((filename,path,path_raw,path_images,exe,ysize,xsize,bool(win_show)))
+    imap1 = pool.imap(unwrap,A)
+    pool.close()
+    for x in imap1:
+        i+=1
+        t.set(str(i)+'/'+maxf)
+        win.update()
+        data[i+3]+=x
     zz = time.clock()-zz
-    print(tt)
-    '''
+
     #Print summary and update ./debug.csv
     f1 = os.path.join(path,r'debug.csv')
     f1 = open(f1,'w')
     for a in data:
         f1.write(a+'\n')
-        print a
+        print(a)
     f1.close()
-    '''
-
+    
     #Display runtime and change close button text to 'close'
     t1.set('Close')
     t.set('Finished in %f seconds'%zz)
