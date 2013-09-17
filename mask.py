@@ -1,7 +1,7 @@
 import numpy as np
 from h5py import File
-import os
-import tfi_gui
+import os, re
+#import tfi_py
 
 
 #@profile

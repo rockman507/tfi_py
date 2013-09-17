@@ -129,9 +129,9 @@ def get_phase(args):
 if __name__ == '__main__':
     #path = askdirectory()
     #path = diropenbox('Pick directory to process',default=r'c:\phase')
-    #path = r'C:\Users\jsaredy\Desktop\4 1_20130710'
+    path = r'C:\Users\jsaredy\Desktop\4 1_20130710'
     #path = r'C:\Users\jsaredy\Desktop\run3'
-    path = r'C:\4 1_20130710'
+    #path = r'C:\4 1_20130710'
     path_raw, path_images, filenames = get_path(path, 'h5')
     first_file = os.path.join(path,filenames[0])
     mask,coord = get_mask(first_file, border=2)
@@ -156,7 +156,7 @@ if __name__ == '__main__':
         deb+=x
     print(str(time.clock()-zz))
     '''
-    for ii in range(1,5):
+    for ii in range(1,14):
         zz = time.clock()
         for jj in range(10):
             pool = Pool(processes=ii)
@@ -174,7 +174,7 @@ if __name__ == '__main__':
                 deb+= x
                 #print x
         zz = time.clock()-zz
-        print('Process=%d, time=%f',(ii,(zz/10)))
+        print('Process={}, time={}'.format(ii,(zz/10)))
 
 
     #print deb
