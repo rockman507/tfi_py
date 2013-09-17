@@ -2,7 +2,7 @@ import numpy as np
 from os.path import join
 from os import listdir
 from time import clock
-from libtim.zern import fit_zernike
+from zern1 import fit_zernike
 from scipy.misc import toimage
 #cimport numpy as np
 #import ctypes
@@ -42,6 +42,7 @@ def get_zernike (args):
     err = []
     fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
 
+
     fitdiff = np.array(fitdiff, dtype='f')
     fitdiff[mask] = 0
     fitrec = np.array(fitrec, dtype='f')
@@ -79,11 +80,12 @@ def get_zernike (args):
     #print str(clock()-zz)+' '+filename
 
     #return temp
+    #print('{},{},{},{},{},{},{},{}'.format(piston, tilt, astig, power, sphere, err[0], err[1], err[2]))
     return '%f,%f,%f,%f,%f,%f,%f,%f\n' % (piston, tilt, astig, power, sphere, err[0], err[1], err[2])
 
 
 
-
+'''
 if __name__ == '__main__':
     # Get path
     tmpz = clock()
@@ -115,5 +117,6 @@ if __name__ == '__main__':
         break
 
     print(temp)
+'''
 
 

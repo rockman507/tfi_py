@@ -1,18 +1,14 @@
 from tkinter import *
-#from easygui import diropenbox
 from win32.win32api import GetShortPathName
-#import tkMessageBox
-#import time, re, os
-#import ImageTk
 from wrapped_phase import *
 from unwrap_phase import *
-#from zernike_js import *
+from zernike_js import get_zernike
 from mask import get_mask
 from PIL import Image
 from scipy.misc import toimage
 from multiprocessing import Pool
 from tkinter.filedialog import askdirectory
-import tfi_py
+#import tfi_py
 import re
 #from __future__ import print_function
 
@@ -220,7 +216,7 @@ def zernike(mode) :
     A=[]
     for filename in filenames:
         A.append((filename, path, path_raw, path_images, mask, size, mode))
-    imap1 = pool.imap(get_zernike,A)
+    imap1 = map(get_zernike,A)
 
     tt = ''
     for x in imap1:
@@ -464,8 +460,8 @@ if __name__ == '__main__':
     b3 = Button(root, text='Unwrap', command=unwrap_options)
     b3.grid(row=1, column=1)
 
-    #b_zern = Button(root, text='Zernike', command=zernike_options)
-    #b_zern.grid(row=1, column=2)
+    b_zern = Button(root, text='Zernike', command=zernike_options)
+    b_zern.grid(row=1, column=2)
 
     #b4 = Button(root, text='test', command=check_zernike_surface)
     #b4.grid(row=3, column=1)
