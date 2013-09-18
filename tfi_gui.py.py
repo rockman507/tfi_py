@@ -1,16 +1,20 @@
+from __future__ import print_function
 from tkinter import *
 from win32.win32api import GetShortPathName
-from wrapped_phase import *
-from unwrap_phase import *
-from zernike_js import get_zernike
-from mask import get_mask
 from PIL import Image
 from scipy.misc import toimage
 from multiprocessing.pool import Pool
 from tkinter.filedialog import askdirectory
-#import tfi_py
 import re
-#from __future__ import print_function
+import os
+import time
+import numpy as np
+
+from wrapped_phase import get_phase, get_path
+from unwrap_phase import unwrap_setup, unwrap
+from zernike_js import get_zernike
+from mask import get_mask
+
 
 
 #Libraries required:
