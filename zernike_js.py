@@ -66,8 +66,8 @@ def get_zernike(args):
     except:
         sphere = nan
 
-    return ('%s,%f,%f,%f,%f,%f,%f,%f,%f\n') %
-    (filename, piston, tilt, astig, power, sphere, err[0], err[1], err[2])
+    return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
+        piston, tilt, astig, power, sphere, err[0], err[1], err[2])
 
 
 if __name__ == '__main__':
@@ -108,6 +108,7 @@ if __name__ == '__main__':
 
     for x in mapi:
         summary += x
+        print(x)
 
     print(str(clock()-zz))
-    print(temp)
+    print(summary)
