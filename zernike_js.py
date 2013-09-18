@@ -4,9 +4,7 @@ from os import listdir
 from time import clock
 from zern1 import fit_zernike
 from scipy.misc import toimage
-#cimport numpy as np
-#import ctypes
-
+import multiprocessing
 
 
 #def get_zernike (filename, path, path_raw, path_images, temp, mask, size, modes):
@@ -19,6 +17,7 @@ def get_zernike (args):
     mask = args[4]
     size = args[5]
     modes = args[6]
+    nan = np.NaN
     
     # Setup output filenames
 
@@ -55,37 +54,31 @@ def get_zernike (args):
     try:
         piston = fitvec[0]
     except:
-        piston = 0
+        piston = nan
     try:
         tilt = np.sqrt(fitvec[1]**2+fitvec[2]**2)
     except:
-        tilt = 0
+        tilt = nan
     try:
         astig = np.sqrt(fitvec[4]**2+fitvec[5]**2)
     except:
-        astig = 0
+        astig = nan
     try:
         power = fitvec[3]
     except:
-        power = 0
+        power = nan
     try:
         sphere = fitvec[10]
     except:
-        sphere = 0
+        sphere = nan
     
 
-    #print filename
-    #temp+=str(piston)+','+str(tilt)+','+str(astig)+','+str(power)+','+str(sphere)+','+str(err[0])+','+str(err[1])+','+str(err[2])+'\n'
-    #print err[0]
-    #print str(clock()-zz)+' '+filename
-
-    #return temp
-    #print('{},{},{},{},{},{},{},{}'.format(piston, tilt, astig, power, sphere, err[0], err[1], err[2]))
-    return '%f,%f,%f,%f,%f,%f,%f,%f\n' % (piston, tilt, astig, power, sphere, err[0], err[1], err[2])
+    return ('%s,%f,%f,%f,%f,%f,%f,%f,%f\n') % (filename,piston, tilt, astig, power, sphere, err[0], err[1], err[2])
 
 
 
-'''
+
+
 if __name__ == '__main__':
     # Get path
     tmpz = clock()
@@ -112,11 +105,17 @@ if __name__ == '__main__':
             raw_filenames.remove(raw_filename)
     temp = 'piston, tilt, astrig, power, sphere\n'           
     print(str(clock()-tmpz))
+    zz = clock()
+    A=[]
     for filename in raw_filenames:
-        temp = get_zernike(filename, path, path_raw, path_images, temp, mask, arr_size, 15)
-        break
+        A.append((filename, path, path_raw, path_images, mask, arr_size, 8))
+    mapi = map(get_zernike,A)
+    for x in mapi:
+        print(x)
+    print(str(clock()-zz))
+
 
     print(temp)
-'''
+
 
 
