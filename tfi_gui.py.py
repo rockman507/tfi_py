@@ -6,7 +6,7 @@ from zernike_js import get_zernike
 from mask import get_mask
 from PIL import Image
 from scipy.misc import toimage
-from multiprocessing import Pool
+from multiprocessing.pool import Pool
 from tkinter.filedialog import askdirectory
 #import tfi_py
 import re
@@ -199,6 +199,7 @@ def zernike(mode) :
     mask_file = os.path.join(path,'mask.dat')
     fm = open(mask_file, 'rb')
     mask = np.fromfile(fm, dtype='bool')
+    print (len(mask))
     fm.close()
     mask.resize(size)
     
@@ -212,42 +213,24 @@ def zernike(mode) :
     win.update()
     zz = time.clock()
 
-    pool = Pool()
     A=[]
+    summary = '{}\nModes,{}\n'.format(path,mode)
     for filename in filenames:
         A.append((filename, path, path_raw, path_images, mask, size, mode))
-    imap1 = map(get_zernike,A)
+    map_result = map(get_zernike,A)
 
-    tt = ''
-    for x in imap1:
+    for x in map_result:
         i+=1
         t.set(str(i)+'/'+maxf)
         win.update()
-        tt+=x
-    pool.close()
-
+        summary+=x
     zz = time.clock()-zz
 
-    print(tt)
-
-    '''
-    for filename in filenames:
-        t.set(str(i))
-        win.update()
-        z = time.clock()
-        temp = get_zernike(filename, path, path_raw, path_images, temp, mask, size, mode)
-        zz+=time.clock()-z
-        i+=1
-    '''
-
     #Print summary
-    #print temp
     f1 = os.path.join(path,r'zernike.csv')
     f1 = open(f1,'w')
-    f1.write(temp)
-    #for a in temp:
-    #    f1.write(a+'\n')
-    #    print a
+    f1.write(summary)
+    print(summary)
     f1.close()
 
     #Display runtime and change close button text to 'close'
@@ -334,26 +317,10 @@ def get_directory() :
         #Unwrap call is a CMD.exe call so spaces in path name will crash the call
         #GetShortPathName returns 8.3 compatable file name
         path = GetShortPathName(path)
-        #path = path_convert(path)
-        #path = path_convert(path)
         path_entry.set(path)
     except:
         pass
-'''
-def path_convert(a):
-   path=''
-   a = re.split('\\\\',a)
-   a[0]+='\\'
-   for b in a:
-       if re.search(' ', b):
-           b=b.replace(' ', '')
-           if len(b)>6:
-               b = b[:6]+r'~1'
-           else:
-               b = b+r'~1'
-       path = os.path.join(path,b)
-   return path
-'''
+
 
    
 
@@ -372,36 +339,10 @@ def check_zernike_surface():
     f_zernike = os.path.join(path, r'images\zernike\zernike_diff_00001.bmp')
 
     draw_2images(f_surface, f_zernike)
-    '''
-    win = Toplevel()
-
-    # Create PhotoImage of surfaces
-    image_surface = Image.open(f_surface)
-    tkpi_surface = ImageTk.PhotoImage(image_surface)
-    del image_surface
-
-    image_zernike = Image.open(f_zernike)
-    tkpi_zernike = ImageTk.PhotoImage(image_zernike)
-    del image_zernike
-
-    # Draw images
-    label_image_surface = Label(win, image=tkpi_surface)
-    label_image_surface.image = tkpi_surface #required for Tk to maintain reference
-    label_image_surface.grid(row=0, column=0)
-    
-    label_image_zernike = Label(win, image=tkpi_zernike)
-    label_image_zernike.image = tkpi_zernike #required for Tk to maintain reference
-    label_image_zernike.grid(row=0, column=1)
-
-    # Close
-    test_destroy = Button(win, text='Close', command=win.destroy)
-    test_destroy.grid(row=1)
-    '''
 #End check_zernike_surface()
 
 # Make a window with unwrapped surface and zernike fit removed of the first image of the dataset
 def draw_2images(surface_file1, surface_file2):
-    
 
     win = Toplevel()
 
