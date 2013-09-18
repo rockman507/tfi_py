@@ -15,8 +15,6 @@ from unwrap_phase import unwrap_setup, unwrap
 from zernike_js import get_zernike
 from mask import get_mask
 
-
-
 #Libraries required:
 # Tk, easygui, win32api, time, ImageTk, Image, scipy, numpy, pyplot, Tm
 #Files required in same directory:
@@ -24,8 +22,8 @@ from mask import get_mask
 
 
 #Extract phase using 9-bin algorithm
-def phase() :
-    
+def phase():
+
     #Create window
     win = Toplevel()
     win.wm_title('Extracting phase')
@@ -33,7 +31,7 @@ def phase() :
     #Current file number label
     t = StringVar()
     t.set('0')
-    info = Label(win,textvariable=t)
+    info = Label(win, textvariable=t)
     info.grid(row=0)
 
     #Close button display 'working'
@@ -42,55 +40,52 @@ def phase() :
     b1 = Button(win, textvariable=t1, command=win.destroy)
     b1.grid(row=1)
 
-
     #Get path, filenames, and mask setup
     path = path_entry.get()
-    path_raw, path_images, filenames = get_path(path, filetype = 'h5')
-    first_file = os.path.join(path,filenames[0])
-    mask,coord = get_mask(first_file, border=2)
-    mask = mask[coord[0]:coord[1],coord[2]:coord[3]]
+    path_raw, path_images, filenames = get_path(path, filetype='h5')
+    first_file = os.path.join(path, filenames[0])
+    mask, coord = get_mask(first_file, border=2)
+    mask = mask[coord[0]:coord[1], coord[2]:coord[3]]
 
     #Draw window widgets
     maxf = str(len(filenames))
-    t.set('0/'+maxf)
+    t.set('0/' + maxf)
     win.update()
 
     #Setup summary string
-    summary = 'x size,'+str(coord[1]-coord[0])+'\n'
-    summary+= 'y size,'+str(coord[3]-coord[2])+'\n'
-    summary+= 'number of files,'+str(len(filenames))+'\n'
-    summary+= 'file, instensity, modulation\n'
+    summary = 'x size,' + str(coord[1]-coord[0]) + '\n'
+    summary += 'y size,' + str(coord[3]-coord[2]) + '\n'
+    summary += 'number of files,' + str(len(filenames)) + '\n'
+    summary += 'file, instensity, modulation\n'
 
     #Run 9-bin phase wrap
     i = 0
-    A=[]
+    A = []
     zz = time.clock()
     pool = Pool(processes=8)
 
     for filename in filenames:
         A.append((filename, path, path_raw, path_images, mask, coord))
-    
-    for x in pool.map(get_phase,A):
-        t.set(str(i)+'/'+maxf)
+
+    for x in pool.map(get_phase, A):
+        t.set(str(i) + '/' + maxf)
         win.update()
-        i+=1
-        summary+= x
-        
-    zz = time.clock()-zz
+        i += 1
+        summary += x
+
+    zz = time.clock() - zz
     pool.close()
 
     #Print summary and save to ./debug.csv
     print(summary)
-    f_debug = os.path.join(path,'debug.csv')
-    f_debug = open(f_debug,'w')
+    f_debug = os.path.join(path, 'debug.csv')
+    f_debug = open(f_debug, 'w')
     f_debug.write(summary)
     f_debug.close()
 
-
     #Display runtime and change close button text to 'close'
     t1.set('Close')
-    t.set('Finished in %f seconds'%zz)
-    
+    t.set('Finished in %f seconds' % zz)
 #End phase()
 
 
@@ -98,11 +93,11 @@ def phase() :
 #   parent = algorithm choice window
 #   listb = list button with choosen unwrap algorithm
 #   win_show = boolean to show process window
-def start_unwrap(parent,listb,win_show):
+def start_unwrap(parent, listb, win_show):
 
     #Get algorthim .exe file then destroy parent window
     exe_name = listb.get(listb.curselection())
-    exe = r'C:\phase\\'+listb.get(listb.curselection())+'_o2.exe'
+    exe = r'C:\phase\\' + listb.get(listb.curselection()) + '_o2.exe'
     parent.destroy()
 
     #Create window
@@ -130,50 +125,50 @@ def start_unwrap(parent,listb,win_show):
 
     #Get path and filenames
     path = path_entry.get()
-    path_raw, path_images, filenames = get_path(path, filetype = 'wrapped')
+    path_raw, path_images, filenames = get_path(path, filetype='wrapped')
 
     #Get array size and summary string from file
     xsize, ysize, data = unwrap_setup(path)
-    data[3]+= ','+exe_name+' rms'
+    data[3] += ','+exe_name + ' rms'
 
     #Run unwrap
     i = 0
     maxf = str(len(filenames))
-    t.set(str(i)+'/'+maxf)
+    t.set(str(i) + '/' + maxf)
     win.update()
     zz = time.clock()
 
     pool = Pool(processes=10)
 
-    A=[]
+    A = []
     for filename in filenames:
-        A.append((filename,path,path_raw,path_images,exe,ysize,xsize,bool(win_show)))
-    imap1 = pool.imap(unwrap,A)
+        A.append((filename, path, path_raw, path_images, exe, ysize, xsize, bool(win_show)))
+    imap1 = pool.imap(unwrap, A)
     pool.close()
     for x in imap1:
-        i+=1
-        t.set(str(i)+'/'+maxf)
+        i += 1
+        t.set(str(i) + '/' + maxf)
         win.update()
-        data[i+3]+=x
-    zz = time.clock()-zz
+        data[i+3] += x
+    zz = time.clock() - zz
 
     #Print summary and update ./debug.csv
-    f1 = os.path.join(path,r'debug.csv')
-    f1 = open(f1,'w')
+    f1 = os.path.join(path, r'debug.csv')
+    f1 = open(f1, 'w')
     for a in data:
-        f1.write(a+'\n')
+        f1.write(a + '\n')
         print(a)
     f1.close()
-    
+
     #Display runtime and change close button text to 'close'
     t1.set('Close')
-    t.set('Finished in %f seconds'%zz)
+    t.set('Finished in %f seconds' % zz)
 #End start_unwrap(parent,listb,win_show)
-    
+
 
 #Runs a zernike fit from j = (1 to mode) using Noll indexing
 #   mode = int Noll index
-def zernike(mode) :
+def zernike(mode):
 
     #Setup window
     win = Toplevel()
@@ -196,59 +191,61 @@ def zernike(mode) :
 
     #Get path, filenames,  and setup mask
     path = path_entry.get()
-    path_raw, path_images, filenames = get_path(path, filetype = 'unwrapped')
-    path_size = os.path.join(path,r'size.dat')
-    [xsize,ysize] = np.fromfile(path_size, dtype='int')
-    size = xsize,ysize
-    mask_file = os.path.join(path,'mask.dat')
+    path_raw, path_images, filenames = get_path(path, filetype='unwrapped')
+    path_size = os.path.join(path, r'size.dat')
+    [xsize, ysize] = np.fromfile(path_size, dtype='int')
+    size = xsize, ysize
+    mask_file = os.path.join(path, 'mask.dat')
     fm = open(mask_file, 'rb')
     mask = np.fromfile(fm, dtype='bool')
     print (len(mask))
     fm.close()
     mask.resize(size)
-    
+
     #Setup summary string
     temp = 'pist, tilt, astig, power, sphere, err[0], err[1], err[2]\n'
 
     #Run zernike fit
     i = 0
     maxf = str(len(filenames))
-    t.set(str(i)+'/'+maxf)
+    t.set(str(i) + '/' + maxf)
     win.update()
     zz = time.clock()
 
-    A=[]
-    summary = '{}\nModes,{}\n'.format(path,mode)
+    A = []
+    summary = '{}\nModes,{}\n'.format(path, mode)
+
     for filename in filenames:
         A.append((filename, path, path_raw, path_images, mask, size, mode))
-    map_result = map(get_zernike,A)
+    map_result = map(get_zernike, A)
 
     for x in map_result:
-        i+=1
-        t.set(str(i)+'/'+maxf)
+        i += 1
+        t.set(str(i) + '/' + maxf)
         win.update()
-        summary+=x
-    zz = time.clock()-zz
+        summary += x
+    zz = time.clock() - zz
 
     #Print summary
-    f1 = os.path.join(path,r'zernike.csv')
-    f1 = open(f1,'w')
+    f1 = os.path.join(path, r'zernike.csv')
+    f1 = open(f1, 'w')
     f1.write(summary)
     print(summary)
     f1.close()
 
     #Display runtime and change close button text to 'close'
     t1.set('Close')
-    t.set('Finished in %f seconds'%zz)
+    t.set('Finished in %f seconds' % zz)
 #End zernike(mode)
 
 
-def unwrap_options() :
+def unwrap_options():
     #Only run when there is a path chosen
     path = path_entry.get()
+
     if not path:
         return
-    
+
     win = Toplevel()
     win.wm_title('Unwrap algorithms')
 
@@ -258,37 +255,35 @@ def unwrap_options() :
     win_show = BooleanVar()
     win_show_box = Checkbutton(win, text="Show process window", variable=win_show)
     win_show_box.grid(row=1)
-    
 
-    b4 = Button(win, text='list', command=lambda : start_unwrap(win,listb,win_show.get()))
+    b4 = Button(win, text='list', command=lambda: start_unwrap(win, listb, win_show.get()))
     b4.grid(row=2)
 
     for item in ['flynn', 'fmg', 'gold', 'lpno', 'mcut', 'pcg', 'qual', 'unmg', 'unwt']:
-        listb.insert(END,item)
+        listb.insert(END, item)
 
-def zernike_options() :
+
+def zernike_options():
 
     #Only run when there is a path chosen
     path = path_entry.get()
+
     if not path:
         return
-    
+
     win = Toplevel()
 
-    z_label = Label(win, text= 'nmode = ')
+    z_label = Label(win, text='nmode = ')
     z_label.grid(row=0, column=0)
 
     entry_z = Entry(win, textvariable=zernike_mode)
     entry_z.grid(row=0, column=1)
 
-    runZernike = Button(win, text='Ok', command=lambda :test_zmode(win))
+    runZernike = Button(win, text='Ok', command=lambda: test_zmode(win))
     runZernike.grid(row=1, columnspan=2)
 
 
-
-
-
-def test_zmode(self) :
+def test_zmode(self):
     tmp = zernike_mode.get()
 
     try:
@@ -305,15 +300,18 @@ def test_zmode(self) :
     zernike(mode)
 
 
-def phase_options() :
+def phase_options():
     #Only run when there is a path chosen
     path = path_entry.get()
+
     if not path:
         return
+
     phase()
 
+
 #Get directory to process, saves to path_entry
-def get_directory() :
+def get_directory():
     #path = diropenbox('Pick directory to process',default=r'c:\phase')
     path = askdirectory()
     #Avoids a crash if the directory window is closed without choosing a directory
@@ -326,17 +324,15 @@ def get_directory() :
         pass
 
 
-   
-
 # Make a window with unwrapped surface and zernike fit removed of the first image of the dataset
 def check_zernike_surface():
-    
 
     #f_surface = r'C:\Documents and Settings\jsaredy\Desktop\thresh\images\surface\surface_00001.bmp'
     #f_zernike = r'C:\Documents and Settings\jsaredy\Desktop\thresh\images\zernike\zernike_diff_00001.bmp'
     # Get path from root window
     #Only run when there is a path chosen
     path = path_entry.get()
+
     if not path:
         return
     f_surface = os.path.join(path, r'images\surface\surface_00001.bmp')
@@ -344,6 +340,7 @@ def check_zernike_surface():
 
     draw_2images(f_surface, f_zernike)
 #End check_zernike_surface()
+
 
 # Make a window with unwrapped surface and zernike fit removed of the first image of the dataset
 def draw_2images(surface_file1, surface_file2):
@@ -363,13 +360,13 @@ def draw_2images(surface_file1, surface_file2):
     label_1 = Label(win, text=surface_file1)
     label_1.grid(row=1, column=0)
     label_image_surface1 = Label(win, image=tkpi_surface1)
-    label_image_surface1.image = tkpi_surface1 #required for Tk to maintain reference
+    label_image_surface1.image = tkpi_surface1  # required for Tk to maintain reference
     label_image_surface1.grid(row=0, column=0)
 
     label_2 = Label(win, text=surface_file2)
     label_2.grid(row=1, column=1)
     label_image_surface2 = Label(win, image=tkpi_surface2)
-    label_image_surface2.image = tkpi_surface2 #required for Tk to maintain reference
+    label_image_surface2.image = tkpi_surface2  # required for Tk to maintain reference
     label_image_surface2.grid(row=0, column=1)
 
     # Close
@@ -412,4 +409,3 @@ if __name__ == '__main__':
     #b4.grid(row=3, column=1)
 
     root.mainloop()
-
