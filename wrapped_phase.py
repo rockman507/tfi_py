@@ -163,7 +163,7 @@ if __name__ == '__main__':
             A=[]
             for filename in filenames:
                 A.append((filename, path, path_raw, path_images, mask, coord))
-            imap1 = pool.map(get_phase,A)
+            imap1 = pool.imap(get_phase,A)
             #imap1 = map(get_phase,A)
             pool.close()
             
