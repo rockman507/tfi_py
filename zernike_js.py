@@ -36,18 +36,10 @@ def get_zernike(args):
     # Calc zernike fit and apply mask
     err = []
     cache = {}
-    print('\n1\n')
     fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
-    print('\n12\n')
-    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
-    #print(cache)
-    print('\n23\n')
-    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
-    #print(cache)
-    print('\n34\n')
-    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
-    #print(cache)
-    print('\n4\n')
+    #fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    #fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    #fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
     
     fitdiff = np.array(fitdiff, dtype='f')
     fitdiff[mask] = 0
