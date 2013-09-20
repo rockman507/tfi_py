@@ -3,10 +3,11 @@ from os.path import join
 from os import listdir
 from time import clock
 from zern1 import fit_zernike
+#from libtim.zern import fit_zernike
 from scipy.misc import toimage
 import multiprocessing
 
-
+#@profile
 def get_zernike(args):
     filename = args[0]
     path = args[1]
@@ -34,7 +35,20 @@ def get_zernike(args):
 
     # Calc zernike fit and apply mask
     err = []
+    cache = {}
+    print('\n1\n')
     fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    print('\n12\n')
+    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    #print(cache)
+    print('\n23\n')
+    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    #print(cache)
+    print('\n34\n')
+    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    #print(cache)
+    print('\n4\n')
+    
     fitdiff = np.array(fitdiff, dtype='f')
     fitdiff[mask] = 0
     fitrec = np.array(fitrec, dtype='f')
@@ -66,6 +80,7 @@ def get_zernike(args):
     except:
         sphere = nan
 
+    print(filename)
     return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
         piston, tilt, astig, power, sphere, err[0], err[1], err[2])
 
@@ -103,12 +118,14 @@ if __name__ == '__main__':
     summary = ''
 
     for filename in raw_filenames:
-        A.append((filename, path, path_raw, path_images, mask, arr_size, 8))
-    mapi = map(get_zernike, A)
+        A.append((filename, path, path_raw, path_images, mask, arr_size, 50))
 
-    for x in mapi:
-        summary += x
-        print(x)
+    get_zernike(A[0])
+    #mapi = map(get_zernike, A)
+
+    #for x in mapi:
+    #    summary += x
+    #    print(x)
 
     print(str(clock()-zz))
     print(summary)

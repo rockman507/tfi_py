@@ -8,6 +8,7 @@ import numpy as np
 import time, os, sys
 from multiprocessing import Pool
 #from Tkinter import *
+import libtim
 
 # TFI
 from calc_phase import calc_phase
@@ -156,9 +157,9 @@ if __name__ == '__main__':
         deb+=x
     print(str(time.clock()-zz))
     '''
-    for ii in range(1,14):
+    for ii in {1,4,8,12}:
         zz = time.clock()
-        for jj in range(10):
+        for jj in range(5):
             pool = Pool(processes=ii)
             A=[]
             for filename in filenames:
@@ -174,7 +175,7 @@ if __name__ == '__main__':
                 deb+= x
                 #print x
         zz = time.clock()-zz
-        print('Process={}, time={}'.format(ii,(zz/10)))
+        print('Process={}, time={}'.format(ii,(zz/5)))
 
 
     #print deb

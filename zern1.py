@@ -113,6 +113,7 @@ def mk_rad_mask(r0, r1=None, norm=True, center=None, dtype=np.float):
     return (r0v**2. + r1v**2.)**0.5
 
 def calc_zern_basis(nmodes, rad, modestart=1, calc_covmat=False):
+    print('calc_zern_basis')
     """
     Calculate a basis of **nmodes** Zernike modes with radius **rad**.
 
@@ -212,6 +213,7 @@ def fit_zernike(wavefront, zern_data={}, nmodes=10, startmode=1, fitweight=None,
     # Compute Zernike basis if absent
     #if (not zern_data.has_key('modes')):
     if 'modes' not in zern_data:
+        print('node1')
         tmp_zern = calc_zern_basis(nmodes, rad)
         zern_data['modes'] = tmp_zern['modes']
         zern_data['modesmat'] = tmp_zern['modesmat']
@@ -221,6 +223,7 @@ def fit_zernike(wavefront, zern_data={}, nmodes=10, startmode=1, fitweight=None,
     # Compute Zernike basis if insufficient
     elif (nmodes > len(zern_data['modes']) or
         zern_data['modes'][0].shape != (2*rad, 2*rad)):
+        print('node2')
         tmp_zern = calc_zern_basis(nmodes, rad)
         # This data already exists, overwrite it with new data
         zern_data['modes'] = tmp_zern['modes']
@@ -291,10 +294,11 @@ def calc_zernike(zern_vec, rad, zern_data={}, mask=True):
     @param [in] mask If True, set everything outside the Zernike aperture to zero, otherwise leave as is.
     @see See calc_zern_basis() for details on **zern_data** cache and **mask**
     """
-
+    print('calc zern')
     # Compute Zernike basis if absent
     #if (not zern_data.has_key('modes')):
     if 'modes' not in zern_data:
+        print('node3')
         tmp_zern = calc_zern_basis(len(zern_vec), rad)
         zern_data['modes'] = tmp_zern['modes']
         zern_data['modesmat'] = tmp_zern['modesmat']
@@ -303,6 +307,7 @@ def calc_zernike(zern_vec, rad, zern_data={}, mask=True):
         zern_data['mask'] = tmp_zern['mask']
     # Compute Zernike basis if insufficient
     elif (len(zern_vec) > len(zern_data['modes'])):
+        print('node4')
         tmp_zern = calc_zern_basis(len(zern_vec), rad)
         # This data already exists, overwrite it with new data
         zern_data['modes'] = tmp_zern['modes']
