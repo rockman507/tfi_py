@@ -7,7 +7,7 @@ from zern1 import fit_zernike
 from scipy.misc import toimage
 import multiprocessing
 
-#@profile
+
 def get_zernike(args):
     filename = args[0]
     path = args[1]
