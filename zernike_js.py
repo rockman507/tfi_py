@@ -7,7 +7,7 @@ from zern1 import fit_zernike
 from scipy.misc import toimage
 import multiprocessing
 
-
+#@profile
 def get_zernike(args):
     filename = args[0]
     path = args[1]
@@ -45,6 +45,7 @@ def get_zernike(args):
     fitdiff[mask] = 0
     fitrec = np.array(fitrec, dtype='f')
     fitrec[mask] = 0
+    rms = np.sqrt(np.mean(fitdiff[~mask]**2))
 
     # Save image files
     fitdiff.tofile(zernike_file)
@@ -71,10 +72,12 @@ def get_zernike(args):
         sphere = fitvec[10]
     except:
         sphere = nan
+    coma = np.sqrt(fitvec[6]**2+fitvec[7]**2)
+    tilt = np.sqrt((fitvec[1]-2*fitvec[6])**2+(fitvec[2]-2*fitvec[7])**2)
 
     print(filename)
-    return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
-        piston, tilt, astig, power, sphere, err[0], err[1], err[2])
+    return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
+        piston, tilt, astig, power, sphere, err[0], err[1], err[2], rms, coma)
 
 
 if __name__ == '__main__':
@@ -110,13 +113,13 @@ if __name__ == '__main__':
     summary = ''
 
     for filename in raw_filenames:
-        A.append((filename, path, path_raw, path_images, mask, arr_size, 50))
+        A.append((filename, path, path_raw, path_images, mask, arr_size, 8))
 
-    get_zernike(A[0])
-    #mapi = map(get_zernike, A)
+    #get_zernike(A[0])
+    mapi = map(get_zernike, A)
 
-    #for x in mapi:
-    #    summary += x
+    for x in mapi:
+        summary += x
     #    print(x)
 
     print(str(clock()-zz))

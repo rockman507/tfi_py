@@ -203,7 +203,7 @@ def zernike(mode):
     mask.resize(size)
 
     #Setup summary string
-    temp = 'pist, tilt, astig, power, sphere, err[0], err[1], err[2]\n'
+    temp = 'piston, tilt, astig, power, sphere, err[0], err[1], err[2]\n'
 
     #Run zernike fit
     i = 0
@@ -213,7 +213,7 @@ def zernike(mode):
     zz = time.clock()
 
     A = []
-    summary = '{}\nModes,{}\n'.format(path, mode)
+    summary = '{}\nModes,{}\nfile, piston, tilt, astig, power, sphere, err[0], err[1], err[2], rms, coma\n'.format(path, mode)
 
     for filename in filenames:
         A.append((filename, path, path_raw, path_images, mask, size, mode))
