@@ -2,6 +2,7 @@ import numpy as np
 import functools
 #import warnings
 from scipy.misc import factorial as fac
+import time
 
 def zernike_rad(m, n, rho):
     """
@@ -189,7 +190,6 @@ def fit_zernike(wavefront, zern_data={}, nmodes=10, startmode=1, fitweight=None,
     @return Tuple of (wf_zern_vec, wf_zern_rec, fitdiff) where the first element is a vector of Zernike mode amplitudes, the second element is a full 2D Zernike reconstruction and the last element is the 2D difference between the input wavefront and the full reconstruction.
     @see See calc_zern_basis() for details on **zern_data** cache
     """
-
     if (rad < -1 or min(center) < -1):
         raise ValueError("illegal radius or center < -1")
     elif (rad > 0.5*max(wavefront.shape)):
@@ -208,18 +208,20 @@ def fit_zernike(wavefront, zern_data={}, nmodes=10, startmode=1, fitweight=None,
     # Make cropping slices to select only central part of the wavefront
     xslice = slice(center[0]-rad, center[0]+rad)
     yslice = slice(center[1]-rad, center[1]+rad)
-
+    #print(zern_data)
     # Compute Zernike basis if absent
     #if (not zern_data.has_key('modes')):
     if 'modes' not in zern_data:
+        zz = time.clock()
         tmp_zern = calc_zern_basis(nmodes, rad)
+        print(str(time.clock()-zz))
         zern_data['modes'] = tmp_zern['modes']
         zern_data['modesmat'] = tmp_zern['modesmat']
         zern_data['covmat'] = tmp_zern['covmat']
         zern_data['covmat_in'] = tmp_zern['covmat_in']
         zern_data['mask'] = tmp_zern['mask']
     # Compute Zernike basis if insufficient
-    elif (nmodes > len(zern_data['modes']) or
+    if (nmodes > len(zern_data['modes']) or
         zern_data['modes'][0].shape != (2*rad, 2*rad)):
         tmp_zern = calc_zern_basis(nmodes, rad)
         # This data already exists, overwrite it with new data
@@ -272,7 +274,8 @@ def fit_zernike(wavefront, zern_data={}, nmodes=10, startmode=1, fitweight=None,
         err.append((fitresid**2.0).mean())
         err.append(np.abs(fitresid).mean())
         err.append(np.abs(fitresid).mean()**2.0)
-
+    del zern_data
+    print(zern_data)
     return (wf_zern_vec, wf_zern_rec, fitdiff)
 
 def calc_zernike(zern_vec, rad, zern_data={}, mask=True):
@@ -294,7 +297,9 @@ def calc_zernike(zern_vec, rad, zern_data={}, mask=True):
     # Compute Zernike basis if absent
     #if (not zern_data.has_key('modes')):
     if 'modes' not in zern_data:
+        zz = time.clock()
         tmp_zern = calc_zern_basis(len(zern_vec), rad)
+        print(str(time.clock()-zz))
         zern_data['modes'] = tmp_zern['modes']
         zern_data['modesmat'] = tmp_zern['modesmat']
         zern_data['covmat'] = tmp_zern['covmat']
