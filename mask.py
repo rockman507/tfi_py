@@ -44,18 +44,18 @@ def get_mask(path, border=0, size=True):
     x_min = tempx.min()-border
     x_max = tempx.max()+border+1
     '''
-    y_min = left+1-border
-    y_max = left-1+width+border
-    x_min = top+1-border
-    x_max = top-1+width+border
+    col_min = left+1-border
+    col_max = left-1+width+border
+    row_min = top+1-border
+    row_max = top-1+width+border
     
     #print left, top, width
     #print y_min, y_max, x_min, x_max
 
-    x1 = x_max - x_min
-    y1 = y_max - y_min    
-    size1 = np.array([x1,y1], dtype='int')
-    m1 = mask[x_min:x_max,y_min:y_max]
+    row1 = row_max - row_min
+    col1 = col_max - col_min    
+    size1 = np.array([row1,col1], dtype='int')
+    m1 = mask[row_min:row_max,col_min:col_max]
 
     
     size_path = os.path.join(os.path.dirname(path), r'size.dat')
@@ -65,7 +65,7 @@ def get_mask(path, border=0, size=True):
 
 
     if size:
-        return mask, (x_min, x_max, y_min, y_max)
+        return mask, (row_min, row_max, col_min, col_max)
     else:
         return mask
 

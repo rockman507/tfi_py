@@ -128,7 +128,7 @@ def start_unwrap(parent, listb, win_show):
     path_raw, path_images, filenames = get_path(path, filetype='wrapped')
 
     #Get array size and summary string from file
-    xsize, ysize, data = unwrap_setup(path)
+    row_size, col_size, data = unwrap_setup(path)
     data[3] += ','+exe_name + ' rms'
 
     #Run unwrap
@@ -142,7 +142,7 @@ def start_unwrap(parent, listb, win_show):
 
     A = []
     for filename in filenames:
-        A.append((filename, path, path_raw, path_images, exe, ysize, xsize, bool(win_show)))
+        A.append((filename, path, path_raw, path_images, exe, row_size, col_size, bool(win_show)))
     imap1 = pool.imap(unwrap, A)
     pool.close()
     for x in imap1:
