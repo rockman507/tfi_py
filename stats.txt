@@ -1,0 +1,83 @@
+Timer unit: 4.1058e-07 s
+
+File: zernike_js.py
+Function: get_zernike at line 10
+Total time: 192.793 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    10                                           @profile
+    11                                           def get_zernike(args):
+    12        30          359     12.0      0.0      filename = args[0]
+    13        30          185      6.2      0.0      path = args[1]
+    14        30          149      5.0      0.0      path_raw = args[2]
+    15        30          141      4.7      0.0      path_images = args[3]
+    16        30          148      4.9      0.0      mask = args[4]
+    17        30          151      5.0      0.0      size = args[5]
+    18        30          150      5.0      0.0      modes = args[6]
+    19        30          187      6.2      0.0      nan = np.NaN
+    20                                           
+    21                                               # Setup output filenames
+    22        30          228      7.6      0.0      zz = clock()
+    23        30         4233    141.1      0.0      unwrapped_file = join(path_raw, filename)
+    24        30         3000    100.0      0.0      zernike_file = join(path_raw, 'zernike_'+filename[10:15]+'.dat')
+    25        30         2844     94.8      0.0      image_file = join(path_images, 'zernike_'+filename[10:15]+'.bmp')
+    26        30         2845     94.8      0.0      diff_image_file = join(path_images, 'zernike_diff_'+filename[10:15]+'.bmp')
+    27                                           
+    28                                               # Get array
+    29        30          179      6.0      0.0      if modes == 0:
+    30                                                   modes = 15
+    31        30        28580    952.7      0.0      unwrapped_file1 = open(unwrapped_file, 'rb')
+    32        30        62913   2097.1      0.0      arr = np.fromfile(unwrapped_file, dtype='f')
+    33        30         1657     55.2      0.0      arr.resize(size)
+    34        30         6282    209.4      0.0      mask = ~mask
+    35                                           
+    36                                               # Calc zernike fit and apply mask
+    37        30          210      7.0      0.0      err = []
+    38        30          194      6.5      0.0      cache = {}
+    39        30     60742422 2024747.4     12.9      fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    40        30     51574681 1719156.0     11.0      fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    41                                               #print(cache)
+    42                                               #print('\n\n')
+    43        30    303361564 10112052.1     64.6      fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    44                                               #print(cache)
+    45                                               #print('\n\n')
+    46        30     52130243 1737674.8     11.1      fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    47                                               #print(cache)
+    48                                               #print('\n\n')
+    49                                               
+    50        30        43893   1463.1      0.0      fitdiff = np.array(fitdiff, dtype='f')
+    51        30        32739   1091.3      0.0      fitdiff[mask] = 0
+    52        30        43017   1433.9      0.0      fitrec = np.array(fitrec, dtype='f')
+    53        30        31572   1052.4      0.0      fitrec[mask] = 0
+    54                                           
+    55                                               # Save image files
+    56        30       229860   7662.0      0.0      fitdiff.tofile(zernike_file)
+    57        30       569757  18991.9      0.1      toimage(fitrec).save(image_file)
+    58        30       667606  22253.5      0.1      toimage(fitdiff).save(diff_image_file)
+    59                                           
+    60        30          267      8.9      0.0      try:
+    61        30          314     10.5      0.0          piston = fitvec[0]
+    62                                               except:
+    63                                                   piston = nan
+    64        30          151      5.0      0.0      try:
+    65        30         1552     51.7      0.0          tilt = np.sqrt(fitvec[1]**2+fitvec[2]**2)
+    66                                               except:
+    67                                                   tilt = nan
+    68        30          173      5.8      0.0      try:
+    69        30          845     28.2      0.0          astig = np.sqrt(fitvec[4]**2+fitvec[5]**2)
+    70                                               except:
+    71                                                   astig = nan
+    72        30          162      5.4      0.0      try:
+    73        30          177      5.9      0.0          power = fitvec[3]
+    74                                               except:
+    75                                                   power = nan
+    76        30          144      4.8      0.0      try:
+    77        30          169      5.6      0.0          sphere = fitvec[10]
+    78                                               except:
+    79                                                   sphere = nan
+    80                                           
+    81        30        13986    466.2      0.0      print(filename)
+    82        30          335     11.2      0.0      return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
+    83        30         2364     78.8      0.0          piston, tilt, astig, power, sphere, err[0], err[1], err[2])
+

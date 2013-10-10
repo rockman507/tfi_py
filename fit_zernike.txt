@@ -1,0 +1,124 @@
+Timer unit: 4.1058e-07 s
+
+File: zern2.py
+Function: fit_zernike at line 168
+Total time: 4.49809 s
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   168                                           @profile
+   169                                           def fit_zernike(wavefront, zern_data={}, nmodes=10, startmode=1, fitweight=None, center=(-0.5, -0.5), rad=-0.5, rec_zern=True, err=None):
+   170                                               """
+   171                                               Fit **nmodes** Zernike modes to a **wavefront**.
+   172                                           
+   173                                               The **wavefront** will be fit to Zernike modes for a circle with radius **rad** with origin at **center**. **weigh** is a weighting mask used when fitting the modes.
+   174                                           
+   175                                               If **center** or **rad** are between 0 and -1, the values will be interpreted as fractions of the image shape.
+   176                                           
+   177                                               **startmode** indicates the Zernike mode (Noll index) to start fitting with, i.e. ***startmode**=4 will skip piston, tip and tilt modes. Modes below this one will be set to zero, which means that if **startmode** == **nmodes**, the returned vector will be all zeroes. This parameter is intended to ignore low order modes when fitting (piston, tip, tilt) as these can sometimes not be derived from data.
+   178                                           
+   179                                               If **err** is an empty list, it will be filled with measures for the fitting error:
+   180                                               1. Mean squared difference
+   181                                               2. Mean absolute difference
+   182                                               3. Mean absolute difference squared
+   183                                           
+   184                                               This function uses **zern_data** as cache. If this is not given, it will be generated. See calc_zern_basis() for details.
+   185                                           
+   186                                               @param [in] wavefront Input wavefront to fit
+   187                                               @param [in] zern_data Zernike basis cache
+   188                                               @param [in] nmodes Number of modes to fit
+   189                                               @param [in] startmode Start fitting at this mode (Noll index)
+   190                                               @param [in] fitweight Mask to use as weights when fitting
+   191                                               @param [in] center Center of Zernike modes to fit
+   192                                               @param [in] rad Radius of Zernike modes to fit
+   193                                               @param [in] rec_zern Reconstruct Zernike modes and calculate errors.
+   194                                               @param [out] err Fitting errors
+   195                                               @return Tuple of (wf_zern_vec, wf_zern_rec, fitdiff) where the first element is a vector of Zernike mode amplitudes, the second element is a full 2D Zernike reconstruction and the last element is the 2D difference between the input wavefront and the full reconstruction.
+   196                                               @see See calc_zern_basis() for details on **zern_data** cache
+   197                                               """
+   198                                           
+   199         1           19     19.0      0.0      if (rad < -1 or min(center) < -1):
+   200                                                   raise ValueError("illegal radius or center < -1")
+   201         1           12     12.0      0.0      elif (rad > 0.5*max(wavefront.shape)):
+   202                                                   raise ValueError("radius exceeds wavefront shape?")
+   203         1           10     10.0      0.0      elif (max(center) > max(wavefront.shape)-rad):
+   204                                                   raise ValueError("fitmask shape exceeds wavefront shape?")
+   205         1            6      6.0      0.0      elif (startmode	< 1):
+   206                                                   raise ValueError("startmode<1 is not a valid Noll index")
+   207                                           
+   208                                               # Convert rad and center if coordinates are fractional
+   209         1            6      6.0      0.0      if (rad < 0):
+   210         1            9      9.0      0.0          rad = -rad * min(wavefront.shape)
+   211         1            7      7.0      0.0      if (min(center) < 0):
+   212         1          605    605.0      0.0          center = -np.r_[center] * min(wavefront.shape)
+   213                                           
+   214                                               # Make cropping slices to select only central part of the wavefront
+   215         1           16     16.0      0.0      xslice = slice(center[0]-rad, center[0]+rad)
+   216         1            9      9.0      0.0      yslice = slice(center[1]-rad, center[1]+rad)
+   217                                           
+   218                                               # Compute Zernike basis if absent
+   219                                               #if (not zern_data.has_key('modes')):
+   220         1            6      6.0      0.0      if 'modes' not in zern_data:
+   221         1      9232828 9232828.0     84.3          tmp_zern = calc_zern_basis(nmodes, rad)
+   222         1           14     14.0      0.0          zern_data['modes'] = tmp_zern['modes']
+   223         1            6      6.0      0.0          zern_data['modesmat'] = tmp_zern['modesmat']
+   224         1            6      6.0      0.0          zern_data['covmat'] = tmp_zern['covmat']
+   225         1            5      5.0      0.0          zern_data['covmat_in'] = tmp_zern['covmat_in']
+   226         1            5      5.0      0.0          zern_data['mask'] = tmp_zern['mask']
+   227                                               # Compute Zernike basis if insufficient
+   228                                               elif (nmodes > len(zern_data['modes']) or
+   229                                                   zern_data['modes'][0].shape != (2*rad, 2*rad)):
+   230                                                   tmp_zern = calc_zern_basis(nmodes, rad)
+   231                                                   # This data already exists, overwrite it with new data
+   232                                                   zern_data['modes'] = tmp_zern['modes']
+   233                                                   zern_data['modesmat'] = tmp_zern['modesmat']
+   234                                                   zern_data['covmat'] = tmp_zern['covmat']
+   235                                                   zern_data['covmat_in'] = tmp_zern['covmat_in']
+   236                                                   zern_data['mask'] = tmp_zern['mask']
+   237                                           
+   238         1           16     16.0      0.0      zern_basis = zern_data['modes'][:nmodes]
+   239         1           51     51.0      0.0      zern_basismat = zern_data['modesmat'][:nmodes]
+   240         1            5      5.0      0.0      grid_mask = zern_data['mask']
+   241                                           
+   242         1            4      4.0      0.0      wf_zern_vec = 0
+   243         1           22     22.0      0.0      grid_vec = grid_mask.reshape(-1)
+   244         1            6      6.0      0.0      if (fitweight != None):
+   245                                                   # Weighed LSQ fit with data. Only fit inside grid_mask
+   246                                           
+   247                                                   # Multiply weight with binary mask, reshape to vector
+   248                                                   weight = ((fitweight[yslice, xslice])[grid_mask]).reshape(1,-1)
+   249                                           
+   250                                                   # LSQ fit with weighed data
+   251                                                   wf_w = ((wavefront[yslice, xslice])[grid_mask]).reshape(1,-1) * weight
+   252                                                   #wf_zern_vec = np.dot(wf_w, np.linalg.pinv(zern_basismat[:, grid_vec] * weight)).ravel()
+   253                                                   # This is 5x faster:
+   254                                                   wf_zern_vec = np.linalg.lstsq((zern_basismat[:, grid_vec] * weight).T, wf_w.ravel())[0]
+   255                                               else:
+   256                                                   # LSQ fit with data. Only fit inside grid_mask
+   257                                           
+   258                                                   # Crop out central region of wavefront, then only select the orthogonal part of the Zernike modes (grid_mask)
+   259         1         1992   1992.0      0.0          wf_w = ((wavefront[yslice, xslice])[grid_mask]).reshape(1,-1)
+   260                                                   #wf_zern_vec = np.dot(wf_w, np.linalg.pinv(zern_basismat[:, grid_vec])).ravel()
+   261                                                   # This is 5x faster
+   262         1      1353057 1353057.0     12.4          wf_zern_vec = np.linalg.lstsq(zern_basismat[:, grid_vec].T, wf_w.ravel())[0]
+   263                                           
+   264         1           47     47.0      0.0      wf_zern_vec[:startmode-1] = 0
+   265                                           
+   266                                               # Calculate full Zernike phase & fitting error
+   267         1            7      7.0      0.0      if (rec_zern):
+   268         1       350013 350013.0      3.2          wf_zern_rec = calc_zernike(wf_zern_vec, zern_data=zern_data, rad=min(wavefront.shape)/2)
+   269         1         2278   2278.0      0.0          fitdiff = (wf_zern_rec - wavefront[yslice, xslice])
+   270         1         5097   5097.0      0.0          fitdiff[grid_mask == False] = fitdiff[grid_mask].mean()
+   271                                               else:
+   272                                                   wf_zern_rec = None
+   273                                                   fitdiff = None
+   274                                           
+   275         1            9      9.0      0.0      if (err != None):
+   276                                                   # For calculating scalar fitting qualities, only use the area inside the mask
+   277         1         2934   2934.0      0.0          fitresid = fitdiff[grid_mask == True]
+   278         1         2163   2163.0      0.0          err.append((fitresid**2.0).mean())
+   279         1         2061   2061.0      0.0          err.append(np.abs(fitresid).mean())
+   280         1         2113   2113.0      0.0          err.append(np.abs(fitresid).mean()**2.0)
+   281                                           
+   282         1            7      7.0      0.0      return (wf_zern_vec, wf_zern_rec, fitdiff)
+
