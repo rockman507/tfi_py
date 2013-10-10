@@ -8,7 +8,7 @@ import numpy as np
 import time, os, sys
 from multiprocessing import Pool
 #from Tkinter import *
-import libtim
+#import libtim
 
 # TFI
 from calc_phase import calc_phase
