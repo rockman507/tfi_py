@@ -7,7 +7,6 @@ import time
 def zernike_rad(m, n, rho):
     if (np.mod(n-m, 2) == 1):
         return rho*0.0
-    print('{},{}'.format(m,n))
     wf = rho*0.0
     for k in range(int((n-m)/2+1)):
         wf += rho**(n-2.0*k) * (-1.0)**k * fac(n-k) / ( fac(k) * fac( (n+m)/2.0 - k ) * fac( (n-m)/2.0 - k ) )
@@ -40,6 +39,7 @@ def noll_to_zern(j):
         j1 -= n
 
     m = (-1)**j * ((n % 2) + 2 * int((j1+((n+1)%2)) / 2.0 ))
+    #print(n,m)
     return (n, m)
 
 def zernikel(j, rho, phi, norm=True):
