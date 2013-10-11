@@ -2,12 +2,16 @@ import numpy as np
 from os.path import join
 from os import listdir
 from time import clock
-from zern1 import fit_zernike
+import time
+from zern3 import fit_zernike
+#from libtim.zern import fit_zernike
 from scipy.misc import toimage
 import multiprocessing
 
 
 def get_zernike(args):
+    
+    zz = time.clock()
     filename = args[0]
     path = args[1]
     path_raw = args[2]
@@ -34,11 +38,18 @@ def get_zernike(args):
 
     # Calc zernike fit and apply mask
     err = []
-    fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    cache = {}
+    
+    fitvec, fitrec, fitdiff, err = fit_zernike(arr, nmodes=modes)
+    #fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err)
+    #fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    #fitvec, fitrec, fitdiff = fit_zernike(arr, nmodes=modes, err=err, zern_data=cache)
+    
     fitdiff = np.array(fitdiff, dtype='f')
     fitdiff[mask] = 0
     fitrec = np.array(fitrec, dtype='f')
     fitrec[mask] = 0
+    rms = np.sqrt(np.mean(fitdiff[~mask]**2))
 
     # Save image files
     fitdiff.tofile(zernike_file)
@@ -65,14 +76,18 @@ def get_zernike(args):
         sphere = fitvec[10]
     except:
         sphere = nan
+    coma = np.sqrt(fitvec[6]**2+fitvec[7]**2)
+    tilt = np.sqrt((fitvec[1]-2*fitvec[6])**2+(fitvec[2]-2*fitvec[7])**2)
 
-    return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
-        piston, tilt, astig, power, sphere, err[0], err[1], err[2])
+    print(filename+str(time.clock()-zz))
+    return '{},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f},{:f}\n'.format(filename,
+        piston, tilt, astig, power, sphere, err[0], err[1], err[2], rms, coma)
+    
+    #return 'test'
 
 
 if __name__ == '__main__':
     # Get path
-    tmpz = clock()
     #path = diropenbox('Pick directory to process',default=r'd:\phase')
     #path = win32api.GetShortPathName(path)
     #print path
@@ -97,18 +112,26 @@ if __name__ == '__main__':
             raw_filenames.remove(raw_filename)
 
     temp = 'piston, tilt, astrig, power, sphere\n'
-    print(str(clock()-tmpz))
     zz = clock()
     A = []
     summary = ''
 
     for filename in raw_filenames:
-        A.append((filename, path, path_raw, path_images, mask, arr_size, 8))
+        A.append((filename, path, path_raw, path_images, mask, arr_size, 15))
+
+    #get_zernike(A[0])
     mapi = map(get_zernike, A)
-
+    #get_zernike(A[0])
+    #pool = multiprocessing.Pool()
+    #mapi = pool.imap(get_zernike, A)
+    #pool.close()
+    #pool.join()
+    #print(mapi.get())
+    summary = []
     for x in mapi:
-        summary += x
-        print(x)
+        summary.append(x)
+    #    print(x)
+    #print(summary)
 
-    print(str(clock()-zz))
-    print(summary)
+    #print(str(clock()-zz))
+    #print(summary)
