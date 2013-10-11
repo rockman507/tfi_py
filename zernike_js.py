@@ -8,7 +8,7 @@ from zern3 import fit_zernike
 from scipy.misc import toimage
 import multiprocessing
 
-
+#@profile
 def get_zernike(args):
     
     zz = time.clock()
