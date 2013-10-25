@@ -44,7 +44,7 @@ def phase():
     path = path_entry.get()
     path_raw, path_images, filenames = get_path(path, filetype='h5')
     first_file = os.path.join(path, filenames[0])
-    mask, coord = get_mask(first_file, border=2)
+    mask, coord = get_mask(first_file, border=0)
     mask = mask[coord[0]:coord[1], coord[2]:coord[3]]
 
     #Draw window widgets
@@ -287,7 +287,7 @@ def test_zmode(self):
     tmp = zernike_mode.get()
 
     try:
-        if int(tmp) < 1 or int(tmp) > 99:
+        if int(tmp) < 1 or int(tmp) > 9999:
             tmp = 'a'
         mode = int(tmp)
     except:
