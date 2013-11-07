@@ -28,46 +28,41 @@ masked_rad = ma.array(grid_rad,mask=grid_mask)
 masked_rad = masked_rad.filled(0)
 
 # Make zernike indices
-nm_truple = []
-order = 20
+order = 30
 zz = time.clock()
+nm_truple = []
 n = np.arange(0,order+1)
-temp = {1,-1}
+j=1
 for ni in n:
     m = np.arange(ni%2,ni+1, step=2)
     for mi in  m:
-        if mi%2 == 1:
-            nm_truple.append((ni,-mi))
-        nm_truple.append((ni,mi))
-        if mi%2 == 0 and mi != 0:
-            nm_truple.append((ni,-mi))
-        """if mi == 0:
+        if mi == 0:
             nm_truple.append((ni,mi))
-        elif mi%2 == 0:
-            nm_truple.append((ni,mi))
-            nm_truple.append((ni,-mi))
-        elif mi%2 == 1:
-            nm_truple.append((ni,-mi))
-            nm_truple.append((ni,mi))
-        """
-    
-    #nm_truple.append((ni,mi))
+            j+=1
+        else:
+            nm_truple.append((ni,(-1)**j*mi))
+            j+=1
+            nm_truple.append((ni,(-1)**j*mi))
+            j+=1
 print(str(time.clock()-zz))
-print(nm_truple)
-nm_truple = []
+#print(nm_truple)
+
+
 zz = time.clock()
+nm_truple1 = []
 ii = (order+1)*(order+2)/2
-print(ii)
 for j in range(1,int(ii+1)):
-    #print(j)
     n = 0
     j1 = j-1
     while (j1 > n):
         n += 1
         j1 -= n
-
     m = (-1)**j * ((n % 2) + 2 * int((j1+((n+1)%2)) / 2.0 ))
-    nm_truple.append((n,m))
+    nm_truple1.append((n,m))
 print(str(time.clock()-zz))
-print(nm_truple)
+
+#print(nm_truple1)
 #print(len(nm_truple))
+for i in range(int(ii)):
+    if ~(nm_truple[i][0] == nm_truple1[i][0]) or ~(nm_truple[i][1] == nm_truple1[i][1]):
+        print('BAD {} : {}'.format(nm_truple[i],nm_truple1[i]))

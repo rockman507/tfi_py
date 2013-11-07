@@ -47,6 +47,7 @@ def get_zernike(args):
     
     fitdiff = np.array(fitdiff, dtype='f')
     fitdiff[mask] = 0
+    fitdiff = fitdiff*(-1)
     fitrec = np.array(fitrec, dtype='f')
     fitrec[mask] = 0
     rms = np.sqrt(np.mean(fitdiff[~mask]**2))

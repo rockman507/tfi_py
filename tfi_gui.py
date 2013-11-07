@@ -44,7 +44,7 @@ def phase():
     path = path_entry.get()
     path_raw, path_images, filenames = get_path(path, filetype='h5')
     first_file = os.path.join(path, filenames[0])
-    mask, coord = get_mask(first_file, border=2)
+    mask, coord = get_mask(first_file, border=0)
     mask = mask[coord[0]:coord[1], coord[2]:coord[3]]
 
     #Draw window widgets
@@ -198,7 +198,6 @@ def zernike(mode):
     mask_file = os.path.join(path, 'mask.dat')
     fm = open(mask_file, 'rb')
     mask = np.fromfile(fm, dtype='bool')
-    print (len(mask))
     fm.close()
     mask.resize(size)
 
@@ -239,55 +238,64 @@ def zernike(mode):
 #End zernike(mode)
 
 
+# Gets what unwrap algorithm to use and whether to show the subprocess window
 def unwrap_options():
-    #Only run when there is a path chosen
-    path = path_entry.get()
 
+    # Get the path then check if empty
+    path = path_entry.get()
     if not path:
         return
 
+    #Setup window
     win = Toplevel()
     win.wm_title('Unwrap algorithms')
 
+    # Create listbox and populate with options for unwrapping
     listb = Listbox(win)
     listb.grid(row=0)
+    for item in ['flynn', 'fmg', 'gold', 'lpno', 'mcut', 'pcg', 'qual', 'unmg', 'unwt']:
+        listb.insert(END, item)
 
+    # Create a check box for whether to show the subprocess window for each unwrap call
     win_show = BooleanVar()
     win_show_box = Checkbutton(win, text="Show process window", variable=win_show)
     win_show_box.grid(row=1)
 
+    # Create a button to call start_unwrap with the choosen algorithm
     b4 = Button(win, text='list', command=lambda: start_unwrap(win, listb, win_show.get()))
     b4.grid(row=2)
+# End unwrap_options()
+    
 
-    for item in ['flynn', 'fmg', 'gold', 'lpno', 'mcut', 'pcg', 'qual', 'unmg', 'unwt']:
-        listb.insert(END, item)
-
-
+# Gets the number of indices to build the zernike to
 def zernike_options():
 
-    #Only run when there is a path chosen
+    # Get the path then check if empty
     path = path_entry.get()
-
     if not path:
         return
 
+    #Setup window
     win = Toplevel()
 
     z_label = Label(win, text='nmode = ')
     z_label.grid(row=0, column=0)
 
+    # Create text entry for zernike mode
     entry_z = Entry(win, textvariable=zernike_mode)
     entry_z.grid(row=0, column=1)
 
+    # Create button to call test_zmode
     runZernike = Button(win, text='Ok', command=lambda: test_zmode(win))
     runZernike.grid(row=1, columnspan=2)
+# End zernike_options()
 
 
 def test_zmode(self):
     tmp = zernike_mode.get()
 
     try:
-        if int(tmp) < 1 or int(tmp) > 99:
+        if int(tmp) < 1 or int(tmp) > 9999:
             tmp = 'a'
         mode = int(tmp)
     except:
