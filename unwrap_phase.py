@@ -11,7 +11,10 @@ from scipy.misc import toimage
 #from easygui import diropenbox, fileopenbox, choicebox
 import win32api
 from wrapped_phase import get_path
-import multiprocessing  
+import multiprocessing
+from multiprocessing.pool import Pool
+from PIL import Image
+from pylab import cm
 
 #os.system(r'C:\\flyn.exe -input C:\\calc2.dat -format float -output C:\\dump.dat -xsize 990 -ysize 1002 -bmask C:\\mask1.dat')
 #os.system(r'C:\\flyn.exe -input C:\\wrapped.dat -format float -output C:\\dump2.dat -xsize 990 -ysize 1002 -bmask C:\\mask1.dat')
@@ -47,7 +50,7 @@ def unwrap(args):
     mask_file = os.path.join(path,'mask.dat')
     wrapped_file = os.path.join(path_raw,filename)
     unwrapped_file = os.path.join(path_raw,'un'+filename)
-    image_file = os.path.join(path_images,'surface_'+filename[8:13]+'.bmp')
+    image_file = os.path.join(path_images,'surface_'+filename[8:13]+'.tiff')
     #qual_file = os.path.join(path_raw,'qual_'+filename[8:13]+'.dat')
     arg = ''
     #arg += r' -corr '+qual_file+r' -mode max_coor'
@@ -78,6 +81,17 @@ def unwrap(args):
 
     # Saves surface image
     toimage(arr).save(image_file)
+    tmparr = arr[mask==1]
+    range1 = tmparr.max() - tmparr.min()
+    arr -= tmparr.min()
+    arr *= 1/range1
+    arr *= 0.8
+    arr += 0.1
+    arr[mask==0]=0
+    im = Image.fromarray(cm.spectral(arr,bytes=True))
+    #im.show()
+
+    im.save(image_file)
     
     return (','+str(rms))
 
@@ -114,13 +128,14 @@ if __name__ == '__main__':
     data[3]+= ','+alg+' rms,'+alg+' time'
 
     A = []
-    #pool = Pool(processes=8)
+    pool = Pool(processes=8)
     for filename in filenames:
         A.append((filename, path, path_raw, path_images, algorithm_exe, row_size, col_size, False))
 
-    imap1 = map(unwrap,A)
+    imap1 = pool.imap(unwrap,A)
     for i in imap1:
         print(i)
+    pool.close()
 
 
     #time.sleep(10)
