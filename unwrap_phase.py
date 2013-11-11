@@ -50,7 +50,8 @@ def unwrap(args):
     mask_file = os.path.join(path,'mask.dat')
     wrapped_file = os.path.join(path_raw,filename)
     unwrapped_file = os.path.join(path_raw,'un'+filename)
-    image_file = os.path.join(path_images,'surface_'+filename[8:13]+'.tiff')
+    image_file = os.path.join(path_images,'surface_'+filename[8:13]+'.bmp')
+    image_file_tiff = os.path.join(path_images,'surface_'+filename[8:13]+'.tiff')
     #qual_file = os.path.join(path_raw,'qual_'+filename[8:13]+'.dat')
     arg = ''
     #arg += r' -corr '+qual_file+r' -mode max_coor'
@@ -91,7 +92,7 @@ def unwrap(args):
     im = Image.fromarray(cm.spectral(arr,bytes=True))
     #im.show()
 
-    im.save(image_file)
+    im.save(image_file_tiff)
     
     return (','+str(rms))
 
