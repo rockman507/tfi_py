@@ -24,9 +24,9 @@ def get_zernike(args):
     # Setup output filenames
     zz = clock()
     unwrapped_file = join(path_raw, filename)
-    zernike_file = join(path_raw, 'zernike_'+filename[10:15]+'.dat')
+    zernike_file = join(path_raw, 'zernike_modes'+str(modes)+'_'+filename[10:15]+'.dat')
     image_file = join(path_images, 'zernike_'+filename[10:15]+'.bmp')
-    diff_image_file = join(path_images, 'zernike_diff_'+filename[10:15]+'.bmp')
+    diff_image_file = join(path_images, 'zernike_diff_modes'+str(modes)+'_'+filename[10:15]+'.bmp')
 
     # Get array
     if modes == 0:
@@ -54,7 +54,7 @@ def get_zernike(args):
 
     # Save image files
     fitdiff.tofile(zernike_file)
-    toimage(fitrec).save(image_file)
+    #toimage(fitrec).save(image_file)
     toimage(fitdiff).save(diff_image_file)
 
     try:

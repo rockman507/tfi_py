@@ -226,7 +226,7 @@ def zernike(mode):
     zz = time.clock() - zz
 
     #Print summary
-    f1 = os.path.join(path, r'zernike.csv')
+    f1 = os.path.join(path, 'zernike%d.csv' % mode)
     f1 = open(f1, 'w')
     f1.write(summary)
     print(summary)
